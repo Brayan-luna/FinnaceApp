@@ -1,0 +1,24 @@
+# Finance App - Project Rules & Guidelines
+
+1. Component Structure
+- One component per folder (e.g., `src/components/MyComponent/`).
+- Each component folder must contain an `index.tsx` for logic/markup and a `styles.ts` for styling.
+- Keep components small, focused, and reusable.
+
+2. Styling
+- Centralize all colors, typography, and spacing in `src/constants/theme.ts`.
+- Use `StyleSheet.create` for all styling.
+- Do not use inline styles unless strictly necessary for dynamic values.
+
+3. Types
+- Use TypeScript strictly.
+- Define interfaces/types for all component props.
+- Place global types or shared interfaces in `src/types/`.
+
+4. Screens
+- Place all screen components in `src/screens/`.
+- Screen names should be PascalCase and generally end with "Screen" conceptually, but folders can just be the name (e.g., `src/screens/Home/`).
+
+5. Data & State
+- Separate data fetching or heavy logic from UI components.
+- Use mock data temporarily in early development, but structure it to easily swap with a real API or global state.
