@@ -18,6 +18,7 @@
 4. Screens
 - Place all screen components in `src/screens/`.
 - Screen names should be PascalCase and generally end with "Screen" conceptually, but folders can just be the name (e.g., `src/screens/Home/`).
+- debe aver dos archivos por pantalla un index.tsx que es el que va a contener la logica del componente y un styles.ts que va a contener los estilos
 
 5. Data & State
 - Separate data fetching or heavy logic from UI components.

@@ -59,10 +59,10 @@ export const CardsCarousel = () => {
 
           return (
             <Animated.View style={{ width: CARD_WIDTH, marginRight: 16, transform: [{ scale }] }}>
-              <BalanceCard 
-                balance={item.balance} 
-                type={PaymentIconTypeKey[item.type]} 
-                parallaxTranslateX={parallaxTranslateX} 
+              <BalanceCard
+                balance={item.balance}
+                type={PaymentIconTypeKey[item.type]}
+                parallaxTranslateX={parallaxTranslateX}
               />
             </Animated.View>
           );

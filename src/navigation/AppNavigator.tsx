@@ -1,23 +1,134 @@
 import React from 'react';
+import { StyleSheet, View, TouchableOpacity, Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { HomeScreen } from '../screens/Home';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Ionicons } from '@expo/vector-icons';
+import { theme } from '../constants/theme';
 
-const Stack = createNativeStackNavigator();
+// Import Screens
+import { HomeScreen } from '../screens/Home';
+import { StatsScreen } from '../screens/Stats';
+import { TransferScreen } from '../screens/Transfer';
+import { ChatScreen } from '../screens/Chat';
+import { SettingsScreen } from '../screens/Settings';
+
+const Tab = createBottomTabNavigator();
 
 export const AppNavigator = () => {
   return (
     <NavigationContainer>
-      <GestureHandlerRootView>
-        <Stack.Navigator>
-          <Stack.Screen
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <Tab.Navigator
+          screenOptions={{
+            headerShown: false,
+            tabBarShowLabel: false,
+            tabBarStyle: {
+              backgroundColor: theme.colors.background,
+              borderTopWidth: 0,
+              height: Platform.OS === 'ios' ? 88 : 72,
+              paddingBottom: Platform.OS === 'ios' ? 28 : 12,
+              paddingTop: 12,
+              elevation: 0,
+              shadowOpacity: 0,
+            },
+            tabBarActiveTintColor: '#FFFFFF',
+            tabBarInactiveTintColor: 'rgba(255, 255, 255, 0.4)',
+          }}
+        >
+          <Tab.Screen
             name="Home"
             component={HomeScreen}
-            options={{ headerShown: false }}
+            options={{
+              tabBarIcon: ({ focused }) => (
+                <Ionicons 
+                  name={focused ? "wallet" : "wallet-outline"} 
+                  size={24} 
+                  color={focused ? "#FFFFFF" : "rgba(255, 255, 255, 0.4)"} 
+                />
+              ),
+            }}
           />
-        </Stack.Navigator>
+          <Tab.Screen
+            name="Stats"
+            component={StatsScreen}
+            options={{
+              tabBarIcon: ({ focused }) => (
+                <Ionicons 
+                  name={focused ? "stats-chart" : "stats-chart-outline"} 
+                  size={22} 
+                  color={focused ? "#FFFFFF" : "rgba(255, 255, 255, 0.4)"} 
+                />
+              ),
+            }}
+          />
+          <Tab.Screen
+            name="Transfer"
+            component={TransferScreen}
+            options={{
+              tabBarIcon: ({ focused }) => (
+                <View style={[
+                  styles.transferButton,
+                  {
+                    backgroundColor: focused ? '#2C2D35' : '#1E1F25',
+                  }
+                ]}>
+                  <Ionicons 
+                    name="swap-horizontal" 
+                    size={24} 
+                    color={focused ? '#FFFFFF' : 'rgba(255, 255, 255, 0.4)'} 
+                  />
+                </View>
+              ),
+            }}
+          />
+          <Tab.Screen
+            name="Chat"
+            component={ChatScreen}
+            options={{
+              tabBarIcon: ({ focused }) => (
+                <Ionicons 
+                  name={focused ? "chatbubble-ellipses" : "chatbubble-ellipses-outline"} 
+                  size={22} 
+                  color={focused ? "#FFFFFF" : "rgba(255, 255, 255, 0.4)"} 
+                />
+              ),
+            }}
+          />
+          <Tab.Screen
+            name="Settings"
+            component={SettingsScreen}
+            options={{
+              tabBarIcon: ({ focused }) => (
+                <Ionicons 
+                  name={focused ? "settings" : "settings-outline"} 
+                  size={22} 
+                  color={focused ? "#FFFFFF" : "rgba(255, 255, 255, 0.4)"} 
+                />
+              ),
+            }}
+          />
+        </Tab.Navigator>
       </GestureHandlerRootView>
     </NavigationContainer>
   );
 };
+
+const styles = StyleSheet.create({
+  transferButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 16,
+    backgroundColor: '#1E1F25',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 5,
+  },
+});

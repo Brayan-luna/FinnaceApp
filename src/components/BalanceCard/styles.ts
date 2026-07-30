@@ -3,50 +3,62 @@ import { theme } from '../../constants/theme';
 
 export const styles = StyleSheet.create({
   container: {
-    backgroundColor: theme.colors.primary,
-    paddingVertical: 20,
-    paddingHorizontal: 20,
-    borderRadius: 20,
+    backgroundColor: '#131314',
+    paddingVertical: 24,
+    paddingHorizontal: 24,
+    borderRadius: 24,
     marginVertical: theme.spacing.m,
-    shadowColor: theme.colors.primary,
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: 6,
     },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
     elevation: 8,
-    gap: 60
+    height: 180,
+    justifyContent: 'space-between',
   },
-  label: {
-    color: 'rgba(255, 255, 255, 0.8)',
-    fontSize: theme.typography.sizes.body,
-    marginBottom: theme.spacing.s,
-    fontWeight: '500',
-    flex: 1
-
-  },
-  balanceContainer: {
+  headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    zIndex: 1,
+  },
+  label: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  mainContentRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    zIndex: 1,
+  },
+  leftColumn: {
+    alignItems: 'flex-start',
+  },
+  rightColumn: {
+    alignItems: 'flex-end',
   },
   balanceText: {
     color: '#FFFFFF',
-    fontSize: theme.typography.sizes.header * 1.5,
+    fontSize: 28,
     fontWeight: 'bold',
+    letterSpacing: -0.5,
   },
-  iconButton: {
-    padding: theme.spacing.xs,
+  accountText: {
+    color: 'rgba(255, 255, 255, 0.4)',
+    fontSize: 12,
+    marginTop: 4,
   },
   numberOfCard: {
-    fontSize: theme.typography.sizes.small,
-    color: '#FFF',
-    fontWeight: '500',
-
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.4)',
+    marginTop: 4,
   },
   containerIconCardAndNumber: {
-    alignSelf: "flex-end",
-    justifyContent: "flex-end",
-    marginTop: 20
+    alignItems: 'flex-end',
   }
 });

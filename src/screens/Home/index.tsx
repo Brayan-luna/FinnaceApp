@@ -10,6 +10,9 @@ import { PaymentIconTypeKey } from '../../types';
 import { BottonSheet } from '../../components/BottonSheet';
 import { FlatList } from 'react-native-gesture-handler';
 import { theme } from '../../constants/theme';
+import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
+import { Image } from 'react-native';
+import profile from '../../../assets/brayanAnime.jpg';
 
 
 
@@ -35,27 +38,79 @@ export const HomeScreen = () => {
       >
         <View style={styles.header}>
           <View>
-            <Text style={styles.greeting}>Good Morning,</Text>
-            <Text style={styles.userName}>Alex Doe</Text>
+            <Text style={styles.greeting}>Good Afternoon,</Text>
+            <Text style={styles.userName}>Brayan Luna</Text>
           </View>
-          <View style={styles.profilePicPlaceholder} />
+          <View style={styles.profilePicPlaceholder} >
+            <Image source={require('../../../assets/brayanAnime.jpg')} style={styles.profilePicPlaceholder} />
+          </View>
         </View>
         <CardsCarousel />
 
+        {/* Dashboard Grid Section */}
+        <View style={styles.gridContainer}>
+          {/* Row 1 */}
+          <View style={styles.gridRow}>
+            <View style={styles.transactionCard}>
+              <View>
+                <Text style={styles.cardTitle}>Transactions</Text>
+                <Text style={styles.cardSubtitle}>Spent in october</Text>
+              </View>
+              <View style={styles.barChartContainer}>
+                <View style={styles.barPurple} />
+                <View style={styles.barCoral} />
+                <View style={styles.barBlue} />
+                <View style={styles.barYellow} />
+                <View style={styles.barGreen} />
+              </View>
+            </View>
+
+            <View style={styles.cashbackCard}>
+              <Text style={styles.cardTitle}>Cashback</Text>
+              <View style={styles.brandsContainer}>
+                <View style={[styles.brandCircle, styles.brandAdidas]}>
+                  <FontAwesome5 name="adidas" size={14} color="white" />
+                </View>
+                <View style={[styles.brandCircle, styles.brandMcdonalds, { marginLeft: -8 }]}>
+                  <FontAwesome5 name="mcdonalds" size={14} color="#FFC72C" />
+                </View>
+                <View style={[styles.brandCircle, styles.brandAmazon, { marginLeft: -8 }]}>
+                  <FontAwesome5 name="amazon" size={12} color="#FF9900" />
+                </View>
+                <View style={[styles.brandCircle, styles.brandSpotify, { marginLeft: -8 }]}>
+                  <FontAwesome5 name="spotify" size={14} color="white" />
+                </View>
+              </View>
+            </View>
+          </View>
+
+          {/* Row 2 */}
+          <View style={styles.gridRow}>
+            <View style={styles.actionColumn}>
+              <View style={styles.actionButton}>
+                <Ionicons name="qr-code-outline" size={20} color="white" />
+              </View>
+              <View style={styles.actionButton}>
+                <Ionicons name="add" size={22} color="white" />
+              </View>
+            </View>
+
+            <View style={styles.infoCard}>
+              <View style={styles.iconCircle}>
+                <Ionicons name="school-outline" size={18} color="white" />
+              </View>
+              <Text style={styles.infoCardTitle}>Tips and training</Text>
+            </View>
+
+            <View style={styles.infoCard}>
+              <View style={styles.iconCircle}>
+                <Ionicons name="grid-outline" size={18} color="white" />
+              </View>
+              <Text style={styles.infoCardTitle}>All services</Text>
+            </View>
+          </View>
+        </View>
       </ScrollView>
-      <BottonSheet>
-        <FlatList
-          data={MOCK_TRANSACTIONS}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <TransactionItem transaction={item} />}
-          showsVerticalScrollIndicator={false}
-          scrollEnabled={false} // Since it might be inside a ScrollView in Home
-          contentContainerStyle={{
-            paddingBottom: theme.spacing.xl,
-            paddingHorizontal: 20
-          }}
-        />
-      </BottonSheet>
     </SafeAreaView>
   );
 };

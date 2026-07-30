@@ -6,6 +6,6 @@ export const styles = StyleSheet.create({
     marginVertical: theme.spacing.m,
   },
   listContent: {
-    paddingHorizontal: theme.spacing.l,
+    // paddingHorizontal: theme.spacing.l,
   },
 });

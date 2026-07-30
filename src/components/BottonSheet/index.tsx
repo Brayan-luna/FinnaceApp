@@ -29,7 +29,7 @@ export function BottonSheet({ children }: { children: React.ReactNode }) {
     return (
         <BottomSheet
             style={{
-                marginHorizontal: 10,
+                marginTop: 10,
             }}
             ref={bottomSheetRef}
             index={1}
