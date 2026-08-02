@@ -1,31 +1,22 @@
 import React, { useRef } from 'react';
 import { Animated, View, Dimensions } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { BalanceCard } from '../BalanceCard';
 import { styles } from './styles';
-import { PaymentIconTypeKey } from '../../types';
+import { useFinanceStore } from '../../store/useFinanceStore';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = width * 0.85;
 
-interface CardData {
-  id: string;
-  balance: number;
-  type: keyof typeof PaymentIconTypeKey;
-}
-
-const MOCK_CARDS: CardData[] = [
-  { id: '1', balance: 12450.75, type: 'visa' },
-  { id: '2', balance: 3500.00, type: 'mastercard' },
-  { id: '3', balance: 850.50, type: 'paypal' },
-];
-
 export const CardsCarousel = () => {
   const scrollX = useRef(new Animated.Value(0)).current;
+  const navigation = useNavigation<any>();
+  const accounts = useFinanceStore((state) => state.accounts);
 
   return (
     <View style={styles.container}>
       <Animated.FlatList
-        data={MOCK_CARDS}
+        data={accounts}
         keyExtractor={(item) => item.id}
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -61,8 +52,12 @@ export const CardsCarousel = () => {
             <Animated.View style={{ width: CARD_WIDTH, marginRight: 16, transform: [{ scale }] }}>
               <BalanceCard
                 balance={item.balance}
-                type={PaymentIconTypeKey[item.type]}
+                type={item.type}
+                cardType={item.cardType}
+                name={item.name}
+                color={item.color}
                 parallaxTranslateX={parallaxTranslateX}
+                onPressAdd={() => navigation.navigate('AddAccount')}
               />
             </Animated.View>
           );

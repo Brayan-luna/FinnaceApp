@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, ScrollView, StatusBar } from 'react-native';
+import { View, Text, ScrollView, StatusBar, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { styles } from './styles';
 import { CardsCarousel } from '../../components/CardsCarousel';
 import { QuickActions } from '../../components/QuickActions';
@@ -13,10 +14,13 @@ import { theme } from '../../constants/theme';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { Image } from 'react-native';
 import profile from '../../../assets/brayanAnime.jpg';
+import mcdonaldsIcon from '../../../assets/mcdonaldsIcon.jpg';
 
 
 
 export const HomeScreen = () => {
+  const navigation = useNavigation<any>();
+
   const MOCK_TRANSACTIONS: TransactionType[] = [
     { id: '1', title: 'Grocery Store', date: 'Today', amount: -45.50, type: 'expense', categoryIcon: 'cart' },
     { id: '2', title: 'Salary Transfer', date: 'Yesterday', amount: 3200.00, type: 'income', categoryIcon: 'cash' },
@@ -68,11 +72,17 @@ export const HomeScreen = () => {
             <View style={styles.cashbackCard}>
               <Text style={styles.cardTitle}>Cashback</Text>
               <View style={styles.brandsContainer}>
-                <View style={[styles.brandCircle, styles.brandAdidas]}>
-                  <FontAwesome5 name="adidas" size={14} color="white" />
-                </View>
+
                 <View style={[styles.brandCircle, styles.brandMcdonalds, { marginLeft: -8 }]}>
-                  <FontAwesome5 name="mcdonalds" size={14} color="#FFC72C" />
+                  <Image
+                    source={require('../../../assets/mcdonaldsIcon.png')}
+                    // style={styles.brandCircle}
+                    style={{
+                      width: 10,
+                      height: 10
+                    }}
+                  // resizeMode='cover'
+                  />
                 </View>
                 <View style={[styles.brandCircle, styles.brandAmazon, { marginLeft: -8 }]}>
                   <FontAwesome5 name="amazon" size={12} color="#FF9900" />
@@ -90,9 +100,13 @@ export const HomeScreen = () => {
               <View style={styles.actionButton}>
                 <Ionicons name="qr-code-outline" size={20} color="white" />
               </View>
-              <View style={styles.actionButton}>
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() => navigation.navigate('AddCategories')}
+                activeOpacity={0.7}
+              >
                 <Ionicons name="add" size={22} color="white" />
-              </View>
+              </TouchableOpacity>
             </View>
 
             <View style={styles.infoCard}>

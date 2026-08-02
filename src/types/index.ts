@@ -8,6 +8,9 @@ export interface Account {
   type: AccountType;
   balance: number;
   currency: string;
+  color?: string;
+  cardType?: PaymentIconType;
+  notes?: string;
 }
 
 export interface Transaction {
