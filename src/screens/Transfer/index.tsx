@@ -11,7 +11,7 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { styles } from './styles';
@@ -48,17 +48,26 @@ const MONTH_FULL_NAMES = [
 
 export const TransferScreen = () => {
   const navigation = useNavigation<any>();
+  const route = useRoute<any>();
   const { accounts, addTransaction } = useFinanceStore();
 
   const accountSheetRef = useRef<any>(null);
   const categorySheetRef = useRef<any>(null);
   const dateSheetRef = useRef<any>(null);
 
+  const initialAccountId = route.params?.accountId;
+  const initialTransactionType = route.params?.transactionType || 'expense';
+
   // Form State
-  const [amount, setAmount] = useState<string>('32,000');
+  const [amount, setAmount] = useState<string>(initialTransactionType === 'income' ? '1,000' : '32,000');
   const [currency, setCurrency] = useState<'USD' | 'COP'>('COP');
-  const [selectedCategory, setSelectedCategory] = useState<Category>(CATEGORIES[1]); // Food & Drinks default
-  const [description, setDescription] = useState<string>('Hamburguesa');
+  
+  const defaultCategory = initialTransactionType === 'income'
+    ? CATEGORIES[8] // Income / Deposit category
+    : CATEGORIES[1]; // Food & Drinks default
+  
+  const [selectedCategory, setSelectedCategory] = useState<Category>(defaultCategory);
+  const [description, setDescription] = useState<string>(initialTransactionType === 'income' ? 'Deposit' : 'Hamburguesa');
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date(2024, 4, 12)); // May 12, 2024 as default to match mock
   const [notes, setNotes] = useState<string>('');
@@ -74,12 +83,21 @@ export const TransferScreen = () => {
   const [viewDate, setViewDate] = useState<Date>(new Date());
   const [startYearPage, setStartYearPage] = useState<number>(2021); // Starting year for Year grid page
 
-  // Initialize with first account when loaded
+  // Initialize with correct account when loaded
   useEffect(() => {
-    if (accounts.length > 0 && !selectedAccount) {
-      setSelectedAccount(accounts[0]);
+    if (accounts.length > 0) {
+      if (initialAccountId) {
+        const found = accounts.find((a) => a.id === initialAccountId);
+        if (found) {
+          setSelectedAccount(found);
+          return;
+        }
+      }
+      if (!selectedAccount) {
+        setSelectedAccount(accounts[0]);
+      }
     }
-  }, [accounts]);
+  }, [accounts, initialAccountId]);
 
   // Sync temp dates when date sheet is opened
   useEffect(() => {
@@ -109,14 +127,20 @@ export const TransferScreen = () => {
     const newTransaction: Transaction = {
       id: Date.now().toString(),
       accountId: selectedAccount.id,
-      type: 'expense',
+      type: initialTransactionType,
       amount: parsedAmount,
       category: selectedCategory.id,
       date: selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), // e.g. "Oct 12"
+      description: description.trim() || undefined,
     };
 
     addTransaction(newTransaction);
-    Alert.alert('Success', 'Expense saved successfully!', [
+    
+    const successMsg = initialTransactionType === 'income' 
+      ? 'Deposit saved successfully!' 
+      : 'Expense saved successfully!';
+
+    Alert.alert('Success', successMsg, [
       {
         text: 'OK',
         onPress: () => {
@@ -247,8 +271,12 @@ export const TransferScreen = () => {
             </TouchableOpacity>
 
             <View style={styles.headerTitleContainer}>
-              <Text style={styles.headerSubtitle}>Add expense</Text>
-              <Text style={styles.headerTitle}>New expense</Text>
+              <Text style={styles.headerSubtitle}>
+                {initialTransactionType === 'income' ? 'Add income' : 'Add expense'}
+              </Text>
+              <Text style={styles.headerTitle}>
+                {initialTransactionType === 'income' ? 'New deposit' : 'New expense'}
+              </Text>
             </View>
 
             <Image
@@ -411,7 +439,9 @@ export const TransferScreen = () => {
                 end={{ x: 1, y: 0 }}
                 style={styles.submitButtonGradient}
               >
-                <Text style={styles.submitButtonText}>Save expense</Text>
+                <Text style={styles.submitButtonText}>
+                  {initialTransactionType === 'income' ? 'Save deposit' : 'Save expense'}
+                </Text>
               </LinearGradient>
             </TouchableOpacity>
 

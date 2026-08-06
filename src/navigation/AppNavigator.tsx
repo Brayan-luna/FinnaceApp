@@ -15,6 +15,7 @@ import { ChatScreen } from '../screens/Chat';
 import { SettingsScreen } from '../screens/Settings';
 import { AddCategoriesScreen } from '../screens/AddCategories';
 import { AddAccountScreen } from '../screens/AddAccount';
+import { AddCashScreen } from '../screens/AddCash';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -43,10 +44,10 @@ const TabNavigator = () => {
         component={HomeScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <Ionicons 
-              name={focused ? "wallet" : "wallet-outline"} 
-              size={24} 
-              color={focused ? "#FFFFFF" : "rgba(255, 255, 255, 0.4)"} 
+            <Ionicons
+              name={focused ? "wallet" : "wallet-outline"}
+              size={24}
+              color={focused ? "#FFFFFF" : "rgba(255, 255, 255, 0.4)"}
             />
           ),
         }}
@@ -56,10 +57,10 @@ const TabNavigator = () => {
         component={StatsScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <Ionicons 
-              name={focused ? "stats-chart" : "stats-chart-outline"} 
-              size={22} 
-              color={focused ? "#FFFFFF" : "rgba(255, 255, 255, 0.4)"} 
+            <Ionicons
+              name={focused ? "stats-chart" : "stats-chart-outline"}
+              size={22}
+              color={focused ? "#FFFFFF" : "rgba(255, 255, 255, 0.4)"}
             />
           ),
         }}
@@ -75,10 +76,10 @@ const TabNavigator = () => {
                 backgroundColor: focused ? '#2C2D35' : '#1E1F25',
               }
             ]}>
-              <Ionicons 
-                name="swap-horizontal" 
-                size={24} 
-                color={focused ? '#FFFFFF' : 'rgba(255, 255, 255, 0.4)'} 
+              <Ionicons
+                name="swap-horizontal"
+                size={24}
+                color={focused ? '#FFFFFF' : 'rgba(255, 255, 255, 0.4)'}
               />
             </View>
           ),
@@ -89,10 +90,10 @@ const TabNavigator = () => {
         component={ChatScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <Ionicons 
-              name={focused ? "chatbubble-ellipses" : "chatbubble-ellipses-outline"} 
-              size={22} 
-              color={focused ? "#FFFFFF" : "rgba(255, 255, 255, 0.4)"} 
+            <Ionicons
+              name={focused ? "chatbubble-ellipses" : "chatbubble-ellipses-outline"}
+              size={22}
+              color={focused ? "#FFFFFF" : "rgba(255, 255, 255, 0.4)"}
             />
           ),
         }}
@@ -102,10 +103,10 @@ const TabNavigator = () => {
         component={SettingsScreen}
         options={{
           tabBarIcon: ({ focused }) => (
-            <Ionicons 
-              name={focused ? "settings" : "settings-outline"} 
-              size={22} 
-              color={focused ? "#FFFFFF" : "rgba(255, 255, 255, 0.4)"} 
+            <Ionicons
+              name={focused ? "settings" : "settings-outline"}
+              size={22}
+              color={focused ? "#FFFFFF" : "rgba(255, 255, 255, 0.4)"}
             />
           ),
         }}
@@ -122,6 +123,7 @@ export const AppNavigator = () => {
           <Stack.Screen name="MainTabs" component={TabNavigator} />
           <Stack.Screen name="AddCategories" component={AddCategoriesScreen} />
           <Stack.Screen name="AddAccount" component={AddAccountScreen} />
+          <Stack.Screen name="AddCash" component={AddCashScreen} />
         </Stack.Navigator>
       </GestureHandlerRootView>
     </NavigationContainer>

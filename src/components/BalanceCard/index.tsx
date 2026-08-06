@@ -5,6 +5,7 @@ import { styles } from './styles';
 import { Ionicons } from '@expo/vector-icons';
 import { PaymentIcon } from 'react-native-payment-icons'
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { useApp } from '../../context/AppContext';
 import { PaymentIconType } from '../../types';
 
 interface BalanceCardProps {
@@ -27,24 +28,14 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
   onPressAdd
 }) => {
   const [isVisible, setIsVisible] = React.useState(true);
+  const { getAccountIcon, getBalanceCardGradient } = useApp();
 
   const formattedBalance = balance.toLocaleString('en-US', {
     style: 'currency',
     currency: 'USD',
   });
 
-  const renderIcon = () => {
-    if (type === 'cash') {
-      return <Ionicons name="wallet-outline" size={38} color="#FFFFFF" />;
-    }
-    const iconType = cardType || 'generic';
-    return <PaymentIcon type={iconType} width={50} color={"white"} />;
-  };
-
-  // Generate gradient colors based on card custom color
-  const gradientColors = (color 
-    ? [color, '#131314', '#1E1F25']
-    : ['#2b2b2eff', '#131314', '#5e5e63ff', '#2e2e34ff', '#9898bbff']) as [string, string, ...string[]];
+  const gradientColors = getBalanceCardGradient(color);
 
   const gradientLocations = (color 
     ? [0, 0.7, 1] 
@@ -86,7 +77,7 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
 
         <View style={styles.rightColumn}>
           <View style={styles.containerIconCardAndNumber}>
-            {renderIcon()}
+            {getAccountIcon(type, cardType, 30)}
             {type !== 'cash' && (
               <Text style={styles.numberOfCard}>
                 •••• 1234

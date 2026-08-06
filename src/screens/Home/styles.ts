@@ -12,7 +12,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing.m,
   },
   scrollContent: {
-    paddingBottom: theme.spacing.xxl,
+    paddingBottom: 110,
   },
   header: {
     flexDirection: 'row',
@@ -56,132 +56,201 @@ export const styles = StyleSheet.create({
   iconButton: {
     padding: 8,
   },
-  gridContainer: {
-    marginTop: theme.spacing.m,
-    gap: 12,
-  },
-  gridRow: {
+  subHeader: {
     flexDirection: 'row',
-    gap: 12,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: theme.spacing.m,
+    marginBottom: theme.spacing.xs,
   },
-  transactionCard: {
-    flex: 1.15,
+  subHeaderTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FFF',
+  },
+  addAccountButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#1E1F25',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cashContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     backgroundColor: '#1E1F25',
     borderRadius: 20,
     padding: 16,
-    height: 125,
-    justifyContent: 'space-between',
+    marginVertical: 12,
   },
-  cashbackCard: {
-    flex: 1,
-    backgroundColor: '#1E1F25',
-    borderRadius: 20,
-    padding: 16,
-    height: 125,
-    justifyContent: 'space-between',
+  cashLeftSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  cardTitle: {
-    color: '#FFFFFF',
+  cashIconBg: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#2E7D32',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  cashDetails: {
+    justifyContent: 'center',
+  },
+  cashTitle: {
+    color: '#FFF',
     fontSize: 15,
     fontWeight: 'bold',
   },
-  cardSubtitle: {
+  cashSubtitle: {
     color: 'rgba(255, 255, 255, 0.4)',
-    fontSize: 11,
+    fontSize: 12,
     marginTop: 2,
   },
-  barChartContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  barPurple: {
-    width: 55,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: '#6200EE',
-  },
-  barCoral: {
-    width: 32,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: '#FF5A5F',
-  },
-  barBlue: {
-    width: 8,
-    height: 14,
-    borderRadius: 4,
-    backgroundColor: '#007AFF',
-  },
-  barYellow: {
-    width: 28,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: '#FFCC00',
-  },
-  barGreen: {
-    width: 10,
-    height: 14,
-    borderRadius: 5,
-    backgroundColor: '#34C759',
-  },
-  brandsContainer: {
+  cashRightSection: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  brandCircle: {
+  cashAmount: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginRight: 8,
+  },
+  sectionHeader: {
+    marginTop: 8,
+    marginBottom: 12,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FFF',
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  summaryCard: {
+    width: '32%',
+    backgroundColor: '#1E1F25',
+    borderRadius: 20,
+    padding: 12,
+    justifyContent: 'space-between',
+    minHeight: 120,
+  },
+  summaryIconBg: {
     width: 28,
     height: 28,
     borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#1E1F25',
-  },
-  brandAdidas: {
-    backgroundColor: '#0088FF',
-  },
-  brandMcdonalds: {
-    backgroundColor: '#E51C23',
-  },
-  brandAmazon: {
-    backgroundColor: '#000000',
-  },
-  brandSpotify: {
-    backgroundColor: '#1DB954',
-  },
-  actionColumn: {
-    width: 48,
-    gap: 8,
-  },
-  actionButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
-    backgroundColor: '#1E1F25',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  infoCard: {
-    flex: 1,
-    backgroundColor: '#1E1F25',
-    borderRadius: 20,
-    padding: 14,
-    height: 104,
-    justifyContent: 'space-between',
-  },
-  iconCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    justifyContent: 'center',
-    alignItems: 'center',
     alignSelf: 'flex-start',
   },
-  infoCardTitle: {
-    color: '#FFFFFF',
-    fontSize: 12.5,
+  summaryCardLabel: {
+    color: 'rgba(255, 255, 255, 0.4)',
+    fontSize: 11,
+    marginTop: 8,
+  },
+  summaryCardValue: {
+    color: '#FFF',
+    fontSize: 13,
     fontWeight: 'bold',
+    marginVertical: 2,
+  },
+  summaryCardChange: {
+    color: 'rgba(255, 255, 255, 0.4)',
+    fontSize: 9,
+  },
+  recentActivityHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 8,
+    marginBottom: 12,
+  },
+  viewAllText: {
+    color: '#7F56D9',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  transactionsContainer: {
+    backgroundColor: '#1E1F25',
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    marginBottom: 20,
+  },
+  transactionRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+  transactionLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  transactionIconBg: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  transactionTitle: {
+    color: '#FFF',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  transactionSubtitle: {
+    color: 'rgba(255, 255, 255, 0.4)',
+    fontSize: 11,
+    marginTop: 2,
+  },
+  transactionRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  transactionAmount: {
+    color: '#FFF',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  cashAddText: {
+    color: '#7F56D9',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  emptyTransactionsContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 32,
+  },
+  emptyTransactionsIconBg: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: 'rgba(127, 86, 217, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  emptyTransactionsTitle: {
+    color: '#FFF',
+    fontSize: 15,
+    fontWeight: 'bold',
+    marginBottom: 6,
+  },
+  emptyTransactionsSubtitle: {
+    color: 'rgba(255, 255, 255, 0.4)',
+    fontSize: 12,
+    textAlign: 'center',
+    lineHeight: 18,
   },
 });
