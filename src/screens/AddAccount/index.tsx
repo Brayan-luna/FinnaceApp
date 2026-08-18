@@ -13,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { styles } from './styles';
+import { getStyles } from './styles';
 import { useFinanceStore } from '../../store/useFinanceStore';
 import { Account, AccountType, PaymentIconType, PaymentIconTypeKey } from '../../types';
 import { PaymentIcon } from 'react-native-payment-icons';
@@ -45,7 +45,8 @@ export const AddAccountScreen = () => {
   const addAccount = useFinanceStore((state) => state.addAccount);
   const bottomSheetRef = useRef<any>(null);
 
-  const { cardColors, getCardGradientColors, getAccountIcon } = useApp();
+  const { cardColors, getCardGradientColors, getAccountIcon, themeColors, isDarkMode } = useApp();
+  const styles = getStyles(themeColors);
 
   const isLoading = useScreenLoading();
 
@@ -95,7 +96,12 @@ export const AddAccountScreen = () => {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <AppSkeleton isLoading={isLoading} layout={layouts.addAccountSkeletonLayout}>
+          <AppSkeleton 
+            isLoading={isLoading} 
+            layout={layouts.addAccountSkeletonLayout}
+            boneColor={isDarkMode ? '#1E1F25' : '#E5E7EB'}
+            highlightColor={isDarkMode ? '#2E3039' : '#F3F4F6'}
+          >
           {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity
@@ -103,7 +109,7 @@ export const AddAccountScreen = () => {
               onPress={() => navigation.goBack()}
               activeOpacity={0.7}
             >
-              <Ionicons name="arrow-back" size={20} color="#FFFFFF" />
+              <Ionicons name="arrow-back" size={20} color={themeColors.text} />
             </TouchableOpacity>
 
             <View style={styles.headerTitleContainer}>
@@ -160,7 +166,7 @@ export const AddAccountScreen = () => {
                 <Text style={[styles.dropdownText, cardType && styles.dropdownTextActive]}>
                   {cardType ? cardType.toUpperCase() : 'Select card type'}
                 </Text>
-                <Ionicons name="chevron-down" size={16} color="rgba(255, 255, 255, 0.4)" />
+                <Ionicons name="chevron-down" size={16} color={themeColors.textSecondary} />
               </TouchableOpacity>
             </View>
 
@@ -170,7 +176,7 @@ export const AddAccountScreen = () => {
               <TextInput
                 style={styles.input}
                 placeholder="e.g. My personal card"
-                placeholderTextColor="rgba(255, 255, 255, 0.4)"
+                placeholderTextColor={themeColors.textSecondary}
                 value={name}
                 onChangeText={setName}
                 autoCapitalize="words"
@@ -183,19 +189,19 @@ export const AddAccountScreen = () => {
               <Text style={styles.label}>Initial balance</Text>
               <View style={styles.amountInputContainer}>
                 <View style={styles.amountIconCircle}>
-                  <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: 'bold' }}>$</Text>
+                  <Text style={{ color: themeColors.accent, fontSize: 16, fontWeight: 'bold' }}>$</Text>
                 </View>
                 <TextInput
                   style={styles.amountInput}
                   placeholder="Enter amount"
-                  placeholderTextColor="rgba(255, 255, 255, 0.4)"
+                  placeholderTextColor={themeColors.textSecondary}
                   value={amount}
                   onChangeText={setAmount}
                   keyboardType="numeric"
                 />
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                   <Text style={styles.amountCurrencyText}>COP</Text>
-                  <Ionicons name="chevron-down" size={14} color="rgba(255, 255, 255, 0.6)" style={{ marginLeft: 4 }} />
+                  <Ionicons name="chevron-down" size={14} color={themeColors.textSecondary} style={{ marginLeft: 4 }} />
                 </View>
               </View>
             </View>
@@ -204,7 +210,7 @@ export const AddAccountScreen = () => {
             <View style={styles.formGroup}>
               <Text style={styles.label}>Card color (optional)</Text>
               <View style={styles.colorsRow}>
-                {cardColors.map((color) => {
+                {cardColors.map((color: string) => {
                   const isSelected = selectedColor === color;
                   return (
                     <TouchableOpacity
@@ -268,14 +274,14 @@ export const AddAccountScreen = () => {
                   <View style={styles.sheetItemLeft}>
                     {item.id === 'generic' ? (
                       <View style={styles.sheetGenericIconContainer}>
-                        <Ionicons name="card-outline" size={20} color="#FFFFFF" />
+                        <Ionicons name="card-outline" size={20} color={themeColors.text} />
                       </View>
                     ) : (
                       <PaymentIcon type={item.id} width={45} />
                     )}
                     <Text style={styles.sheetItemText}>{item.name}</Text>
                   </View>
-                  <Ionicons name="chevron-forward" size={18} color="rgba(255, 255, 255, 0.3)" />
+                  <Ionicons name="chevron-forward" size={18} color={themeColors.textSecondary} />
                 </TouchableOpacity>
               ))}
             </View>

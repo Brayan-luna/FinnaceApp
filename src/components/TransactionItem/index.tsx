@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { styles } from './styles';
+import { getStyles } from './styles';
 import { Ionicons } from '@expo/vector-icons';
-import { theme } from '../../constants/theme';
+import { useApp } from '../../context/AppContext';
 
 export interface TransactionType {
   id: string;
@@ -19,6 +19,8 @@ interface TransactionItemProps {
 }
 
 export const TransactionItem: React.FC<TransactionItemProps> = ({ transaction }) => {
+  const { themeColors } = useApp();
+  const styles = getStyles(themeColors);
   const isIncome = transaction.type === 'income';
 
   const formattedAmount = Math.abs(transaction.amount).toLocaleString('en-US', {
@@ -33,7 +35,7 @@ export const TransactionItem: React.FC<TransactionItemProps> = ({ transaction })
           <Ionicons
             name={transaction.categoryIcon}
             size={20}
-            color={isIncome ? theme.colors.success : theme.colors.danger}
+            color={isIncome ? themeColors.success : themeColors.danger}
           />
         </View>
         <View style={styles.details}>

@@ -138,9 +138,14 @@ export const statsSkeletonLayout = [
 ];
 
 export const settingsSkeletonLayout = [
-  { key: 'header', width: 140, height: 28, borderRadius: 6, marginVertical: 16 },
-  { key: 'section1', width: '100%', height: 140, borderRadius: 20, marginTop: 16 },
-  { key: 'section2', width: '100%', height: 180, borderRadius: 20, marginTop: 16 }
+  { key: 'header', width: 120, height: 32, borderRadius: 8, marginVertical: 16 },
+  { key: 'profileCard', width: '100%', height: 80, borderRadius: 20, marginTop: 4 },
+  { key: 'prefLabel', width: 100, height: 16, borderRadius: 4, marginTop: 24 },
+  { key: 'prefCard', width: '100%', height: 210, borderRadius: 20, marginTop: 12 },
+  { key: 'accountLabel', width: 80, height: 16, borderRadius: 4, marginTop: 24 },
+  { key: 'accountCard', width: '100%', height: 210, borderRadius: 20, marginTop: 12 },
+  { key: 'generalLabel', width: 80, height: 16, borderRadius: 4, marginTop: 24 },
+  { key: 'generalCard', width: '100%', height: 210, borderRadius: 20, marginTop: 12 }
 ];
 
 export const chatSkeletonLayout = [

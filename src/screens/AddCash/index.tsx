@@ -13,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { styles } from './styles';
+import { getStyles } from './styles';
 import { useFinanceStore } from '../../store/useFinanceStore';
 import { Account } from '../../types';
 import { useApp } from '../../context/AppContext';
@@ -24,7 +24,8 @@ export const AddCashScreen = () => {
   const navigation = useNavigation<any>();
   const addAccount = useFinanceStore((state) => state.addAccount);
 
-  const { cashColors, getCardGradientColors } = useApp();
+  const { cashColors, getCardGradientColors, themeColors, isDarkMode } = useApp();
+  const styles = getStyles(themeColors);
 
   const isLoading = useScreenLoading();
 
@@ -66,7 +67,12 @@ export const AddCashScreen = () => {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <AppSkeleton isLoading={isLoading} layout={layouts.addCashSkeletonLayout}>
+          <AppSkeleton 
+            isLoading={isLoading} 
+            layout={layouts.addCashSkeletonLayout}
+            boneColor={isDarkMode ? '#1E1F25' : '#E5E7EB'}
+            highlightColor={isDarkMode ? '#2E3039' : '#F3F4F6'}
+          >
           {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity
@@ -74,7 +80,7 @@ export const AddCashScreen = () => {
               onPress={() => navigation.goBack()}
               activeOpacity={0.7}
             >
-              <Ionicons name="arrow-back" size={20} color="#FFFFFF" />
+              <Ionicons name="arrow-back" size={20} color={themeColors.text} />
             </TouchableOpacity>
 
             <View style={styles.headerTitleContainer}>
@@ -164,7 +170,7 @@ export const AddCashScreen = () => {
             <View style={styles.formGroup}>
               <Text style={styles.label}>Account color (optional)</Text>
               <View style={styles.colorsRow}>
-                {cashColors.map((color) => {
+                {cashColors.map((color: string) => {
                   const isSelected = selectedColor === color;
                   return (
                     <TouchableOpacity

@@ -5,7 +5,7 @@ import { AppSkeleton, layouts } from '../../components/AppSkeleton';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { styles } from './styles';
+import { getStyles } from './styles';
 import { CardsCarousel } from '../../components/CardsCarousel';
 import { useFinanceStore } from '../../store/useFinanceStore';
 import { useApp } from '../../context/AppContext';
@@ -13,7 +13,8 @@ import { useApp } from '../../context/AppContext';
 export const HomeScreen = () => {
   const navigation = useNavigation<any>();
   const { transactions } = useFinanceStore();
-  const { cashAccount, totalBalance } = useApp();
+  const { cashAccount, totalBalance, themeColors, isDarkMode } = useApp();
+  const styles = getStyles(themeColors);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const animation = useRef(new Animated.Value(0)).current;
@@ -62,13 +63,18 @@ export const HomeScreen = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
       <ScrollView
         style={styles.container}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        <AppSkeleton isLoading={isLoading} layout={layouts.homeSkeletonLayout}>
+        <AppSkeleton 
+          isLoading={isLoading} 
+          layout={layouts.homeSkeletonLayout}
+          boneColor={isDarkMode ? '#1E1F25' : '#E5E7EB'}
+          highlightColor={isDarkMode ? '#2E3039' : '#F3F4F6'}
+        >
           <View style={styles.header}>
           <View>
             <Text style={styles.greeting}>Good Afternoon,</Text>
@@ -86,7 +92,7 @@ export const HomeScreen = () => {
             onPress={() => navigation.navigate('AddAccount')}
             activeOpacity={0.7}
           >
-            <Ionicons name="add" size={16} color="white" />
+            <Ionicons name="add" size={16} color={themeColors.text} />
           </TouchableOpacity>
         </View>
 
@@ -112,7 +118,7 @@ export const HomeScreen = () => {
               <Text style={styles.cashAmount}>
                 ${cashAccount.balance.toLocaleString('en-US', { minimumFractionDigits: 0 }).replace(/,/g, '.')}
               </Text>
-              <Ionicons name="chevron-forward" size={16} color="rgba(255, 255, 255, 0.4)" />
+              <Ionicons name="chevron-forward" size={16} color={themeColors.textSecondary} />
             </View>
           </TouchableOpacity>
         ) : (
@@ -122,8 +128,8 @@ export const HomeScreen = () => {
             onPress={() => navigation.navigate('AddCash')}
           >
             <View style={styles.cashLeftSection}>
-              <View style={[styles.cashIconBg, { backgroundColor: '#2C2D35' }]}>
-                <Ionicons name="wallet-outline" size={20} color="#7F56D9" />
+              <View style={[styles.cashIconBg, { backgroundColor: themeColors.accentSubtle }]}>
+                <Ionicons name="wallet-outline" size={20} color={themeColors.accent} />
               </View>
               <View style={styles.cashDetails}>
                 <Text style={styles.cashTitle}>Cash</Text>
@@ -218,26 +224,26 @@ export const HomeScreen = () => {
               let displayTitle = item.description || 'Transaction';
               let displaySubtitle = `${item.date} • ${item.type === 'income' ? 'Cash' : 'Card'}`;
               let amountText = `${isIncome ? '+' : '-'}$${Math.abs(item.amount).toLocaleString('en-US', { minimumFractionDigits: 0 })}`;
-              let amountColor = isIncome ? '#34C759' : '#FFF';
+              let amountColor = isIncome ? themeColors.success : themeColors.text;
 
               if (isHamburguesa) {
                 iconName = 'restaurant';
                 iconBg = '#FF5A5F';
                 displaySubtitle = 'May 12, 2024 • Card';
                 amountText = '-$32,000';
-                amountColor = '#FFF';
+                amountColor = themeColors.text;
               } else if (isSalario) {
                 iconName = 'arrow-down';
                 iconBg = '#34C759';
                 displaySubtitle = 'May 10, 2024 • Cash';
                 amountText = '+$1,200,000';
-                amountColor = '#34C759';
+                amountColor = themeColors.success;
               } else if (isSupermercado) {
                 iconName = 'cart';
                 iconBg = '#FFCC00';
                 displaySubtitle = 'May 9, 2024 • Cash';
                 amountText = '-$85,000';
-                amountColor = '#FFF';
+                amountColor = themeColors.text;
               }
 
               return (
@@ -258,7 +264,7 @@ export const HomeScreen = () => {
                   </View>
                   <View style={styles.transactionRight}>
                     <Text style={[styles.transactionAmount, { color: amountColor }]}>{amountText}</Text>
-                    <Ionicons name="chevron-forward" size={16} color="rgba(255, 255, 255, 0.4)" style={{ marginLeft: 8 }} />
+                    <Ionicons name="chevron-forward" size={16} color={themeColors.textSecondary} style={{ marginLeft: 8 }} />
                   </View>
                 </TouchableOpacity>
               );

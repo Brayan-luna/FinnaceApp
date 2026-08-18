@@ -14,7 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { styles } from './styles';
+import { getStyles } from './styles';
 import { useFinanceStore } from '../../store/useFinanceStore';
 import { Account, PaymentIconType, PaymentIconTypeKey, Transaction } from '../../types';
 import { PaymentIcon } from 'react-native-payment-icons';
@@ -22,6 +22,7 @@ import { BottonSheet } from '../../components/BottonSheet';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useScreenLoading } from '../../hooks/useScreenLoading';
 import { AppSkeleton, layouts } from '../../components/AppSkeleton';
+import { useApp } from '../../context/AppContext';
 
 interface Category {
   id: string;
@@ -52,6 +53,8 @@ export const AddTransactionScreen = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const { accounts, addTransaction } = useFinanceStore();
+  const { themeColors, isDarkMode } = useApp();
+  const styles = getStyles(themeColors);
 
   const accountSheetRef = useRef<any>(null);
   const categorySheetRef = useRef<any>(null);
@@ -264,7 +267,12 @@ export const AddTransactionScreen = () => {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <AppSkeleton isLoading={isLoading} layout={layouts.addTransactionSkeletonLayout}>
+          <AppSkeleton 
+            isLoading={isLoading} 
+            layout={layouts.addTransactionSkeletonLayout}
+            boneColor={isDarkMode ? '#1E1F25' : '#E5E7EB'}
+            highlightColor={isDarkMode ? '#2E3039' : '#F3F4F6'}
+          >
             {/* Header */}
             <View style={styles.header}>
               <TouchableOpacity
@@ -272,7 +280,7 @@ export const AddTransactionScreen = () => {
                 onPress={() => navigation.goBack()}
                 activeOpacity={0.7}
               >
-                <Ionicons name="arrow-back" size={20} color="#FFFFFF" />
+                <Ionicons name="arrow-back" size={20} color={themeColors.text} />
               </TouchableOpacity>
 
               <View style={styles.headerTitleContainer}>
@@ -297,12 +305,12 @@ export const AddTransactionScreen = () => {
                 <Text style={styles.label}>Amount</Text>
                 <View style={styles.amountInputContainer}>
                   <View style={styles.amountIconCircle}>
-                    <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: 'bold' }}>$</Text>
+                    <Text style={{ color: themeColors.accent, fontSize: 16, fontWeight: 'bold' }}>$</Text>
                   </View>
                   <TextInput
                     style={styles.amountInput}
                     placeholder="0"
-                    placeholderTextColor="rgba(255, 255, 255, 0.4)"
+                    placeholderTextColor={themeColors.textSecondary}
                     value={amount}
                     onChangeText={setAmount}
                     keyboardType="numeric"
@@ -313,7 +321,7 @@ export const AddTransactionScreen = () => {
                     activeOpacity={0.7}
                   >
                     <Text style={styles.currencyText}>{currency}</Text>
-                    <Ionicons name="chevron-down" size={12} color="#FFFFFF" />
+                    <Ionicons name="chevron-down" size={12} color={themeColors.accent} />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -332,7 +340,7 @@ export const AddTransactionScreen = () => {
                     </View>
                     <Text style={styles.selectorTitle}>{selectedCategory.name}</Text>
                   </View>
-                  <Ionicons name="chevron-down" size={16} color="rgba(255, 255, 255, 0.4)" />
+                  <Ionicons name="chevron-down" size={16} color={themeColors.textSecondary} />
                 </TouchableOpacity>
               </View>
 
@@ -343,7 +351,7 @@ export const AddTransactionScreen = () => {
                   <TextInput
                     style={styles.descInput}
                     placeholder="e.g. Food, Taxi"
-                    placeholderTextColor="rgba(255, 255, 255, 0.4)"
+                    placeholderTextColor={themeColors.textSecondary}
                     value={description}
                     onChangeText={(val) => {
                       if (val.length <= 100) setDescription(val);
@@ -379,7 +387,7 @@ export const AddTransactionScreen = () => {
                         </Text>
                       </View>
                     </View>
-                    <Ionicons name="chevron-forward" size={16} color="rgba(255, 255, 255, 0.4)" />
+                    <Ionicons name="chevron-forward" size={16} color={themeColors.textSecondary} />
                   </TouchableOpacity>
                 ) : (
                   <TouchableOpacity
@@ -388,12 +396,12 @@ export const AddTransactionScreen = () => {
                     activeOpacity={0.8}
                   >
                     <View style={styles.selectorLeft}>
-                      <Ionicons name="card-outline" size={18} color="rgba(255, 255, 255, 0.4)" />
-                      <Text style={[styles.selectorTitle, { color: 'rgba(255, 255, 255, 0.4)' }]}>
+                      <Ionicons name="card-outline" size={18} color={themeColors.textSecondary} />
+                      <Text style={[styles.selectorTitle, { color: themeColors.textSecondary }]}>
                         Select account or cash
                       </Text>
                     </View>
-                    <Ionicons name="chevron-forward" size={16} color="rgba(255, 255, 255, 0.4)" />
+                    <Ionicons name="chevron-forward" size={16} color={themeColors.textSecondary} />
                   </TouchableOpacity>
                 )}
               </View>
@@ -407,12 +415,12 @@ export const AddTransactionScreen = () => {
                   activeOpacity={0.8}
                 >
                   <View style={styles.selectorLeft}>
-                    <Ionicons name="calendar-outline" size={18} color="rgba(255, 255, 255, 0.4)" />
+                    <Ionicons name="calendar-outline" size={18} color={themeColors.textSecondary} />
                     <Text style={styles.selectorTitle}>
                       {formatDateString(selectedDate)}
                     </Text>
                   </View>
-                  <Ionicons name="chevron-forward" size={16} color="rgba(255, 255, 255, 0.4)" />
+                  <Ionicons name="chevron-forward" size={16} color={themeColors.textSecondary} />
                 </TouchableOpacity>
               </View>
 
@@ -423,7 +431,7 @@ export const AddTransactionScreen = () => {
                   <TextInput
                     style={styles.notesInput}
                     placeholder="Add a note..."
-                    placeholderTextColor="rgba(255, 255, 255, 0.4)"
+                    placeholderTextColor={themeColors.textSecondary}
                     value={notes}
                     onChangeText={setNotes}
                     multiline
@@ -434,12 +442,19 @@ export const AddTransactionScreen = () => {
 
               {/* Submit Button */}
               <TouchableOpacity
-                style={styles.submitButton}
+                style={[
+                  styles.submitButton,
+                  { shadowColor: initialTransactionType === 'income' ? '#34C759' : themeColors.accent }
+                ]}
                 onPress={handleSaveExpense}
                 activeOpacity={0.8}
               >
                 <LinearGradient
-                  colors={['#8A2387', '#E94057', '#F27121']}
+                  colors={
+                    initialTransactionType === 'income'
+                      ? ['#24B24B', '#10B981', '#059669']
+                      : ['#7B42BC', '#6366F1', '#4F46E5']
+                  }
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                   style={styles.submitButtonGradient}

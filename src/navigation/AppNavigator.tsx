@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, View, TouchableOpacity, Platform } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, DarkTheme, DefaultTheme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
-import { theme } from '../constants/theme';
+import { useApp } from '../context/AppContext';
 
 // Import Screens
 import { HomeScreen } from '../screens/Home';
@@ -21,13 +21,15 @@ const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 const TabNavigator = () => {
+  const { themeColors, isDarkMode } = useApp();
+
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: false,
         tabBarStyle: {
-          backgroundColor: theme.colors.background,
+          backgroundColor: themeColors.surface,
           borderTopWidth: 0,
           height: Platform.OS === 'ios' ? 88 : 72,
           paddingBottom: Platform.OS === 'ios' ? 28 : 12,
@@ -35,8 +37,8 @@ const TabNavigator = () => {
           elevation: 0,
           shadowOpacity: 0,
         },
-        tabBarActiveTintColor: '#FFFFFF',
-        tabBarInactiveTintColor: 'rgba(255, 255, 255, 0.4)',
+        tabBarActiveTintColor: themeColors.accent,
+        tabBarInactiveTintColor: themeColors.textSecondary,
       }}
     >
       <Tab.Screen
@@ -47,7 +49,7 @@ const TabNavigator = () => {
             <Ionicons
               name={focused ? "wallet" : "wallet-outline"}
               size={24}
-              color={focused ? "#FFFFFF" : "rgba(255, 255, 255, 0.4)"}
+              color={focused ? themeColors.accent : themeColors.textSecondary}
             />
           ),
         }}
@@ -60,13 +62,11 @@ const TabNavigator = () => {
             <Ionicons
               name={focused ? "stats-chart" : "stats-chart-outline"}
               size={22}
-              color={focused ? "#FFFFFF" : "rgba(255, 255, 255, 0.4)"}
+              color={focused ? themeColors.accent : themeColors.textSecondary}
             />
           ),
         }}
       />
-
-
       <Tab.Screen
         name="Settings"
         component={SettingsScreen}
@@ -75,7 +75,7 @@ const TabNavigator = () => {
             <Ionicons
               name={focused ? "settings" : "settings-outline"}
               size={22}
-              color={focused ? "#FFFFFF" : "rgba(255, 255, 255, 0.4)"}
+              color={focused ? themeColors.accent : themeColors.textSecondary}
             />
           ),
         }}
@@ -85,10 +85,31 @@ const TabNavigator = () => {
 };
 
 export const AppNavigator = () => {
+  const { themeColors, isDarkMode } = useApp();
+
+  const navigationTheme = useMemo(() => {
+    const baseTheme = isDarkMode ? DarkTheme : DefaultTheme;
+    return {
+      ...baseTheme,
+      colors: {
+        ...baseTheme.colors,
+        background: themeColors.background,
+        card: themeColors.surface,
+        text: themeColors.text,
+        border: themeColors.border,
+      },
+    };
+  }, [isDarkMode, themeColors]);
+
   return (
-    <NavigationContainer>
-      <GestureHandlerRootView style={{ flex: 1 }}>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <NavigationContainer theme={navigationTheme}>
+      <GestureHandlerRootView style={{ flex: 1, backgroundColor: themeColors.background }}>
+        <Stack.Navigator 
+          screenOptions={{ 
+            headerShown: false,
+            contentStyle: { backgroundColor: themeColors.background }
+          }}
+        >
           <Stack.Screen name="MainTabs" component={TabNavigator} />
           <Stack.Screen name="AddTransaction" component={AddTransactionScreen} />
           <Stack.Screen name="AddCategories" component={AddCategoriesScreen} />
@@ -99,22 +120,3 @@ export const AppNavigator = () => {
     </NavigationContainer>
   );
 };
-
-const styles = StyleSheet.create({
-  transferButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
-    backgroundColor: '#1E1F25',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 5,
-  },
-});

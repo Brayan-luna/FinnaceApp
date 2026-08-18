@@ -15,9 +15,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { styles } from './styles';
+import { getStyles } from './styles';
 import { useScreenLoading } from '../../hooks/useScreenLoading';
 import { AppSkeleton, layouts } from '../../components/AppSkeleton';
+import { useApp } from '../../context/AppContext';
 
 interface Category {
   id: string;
@@ -79,6 +80,8 @@ const AVAILABLE_ICONS = [
 export const AddCategoriesScreen = () => {
   const navigation = useNavigation<any>();
   const isLoading = useScreenLoading();
+  const { themeColors, isDarkMode } = useApp();
+  const styles = getStyles(themeColors);
   const [searchQuery, setSearchQuery] = useState('');
   const [categories, setCategories] = useState<Category[]>(INITIAL_CATEGORIES);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -124,7 +127,12 @@ export const AddCategoriesScreen = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        <AppSkeleton isLoading={isLoading} layout={layouts.addCategoriesSkeletonLayout}>
+        <AppSkeleton 
+          isLoading={isLoading} 
+          layout={layouts.addCategoriesSkeletonLayout}
+          boneColor={isDarkMode ? '#1E1F25' : '#E5E7EB'}
+          highlightColor={isDarkMode ? '#2E3039' : '#F3F4F6'}
+        >
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
@@ -133,7 +141,7 @@ export const AddCategoriesScreen = () => {
               onPress={() => navigation.goBack()}
               activeOpacity={0.7}
             >
-              <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+              <Ionicons name="arrow-back" size={24} color={themeColors.text} />
             </TouchableOpacity>
             <View style={styles.titleContainer}>
               <Text style={styles.subtitle}>Add expense</Text>

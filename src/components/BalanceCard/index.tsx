@@ -6,27 +6,34 @@ import { Ionicons } from '@expo/vector-icons';
 import { PaymentIcon } from 'react-native-payment-icons'
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useApp } from '../../context/AppContext';
-import { PaymentIconType } from '../../types';
+import { Account, PaymentIconType } from '../../types';
 
-interface BalanceCardProps {
-  balance: number;
+export interface BalanceCardProps {
+  balance?: number;
   type?: string;
   cardType?: PaymentIconType;
   name?: string;
   color?: string;
+  account?: Account;
   parallaxTranslateX?: Animated.AnimatedInterpolation<number>;
   onPressAdd?: () => void;
 }
 
 export const BalanceCard: React.FC<BalanceCardProps> = ({ 
-  balance, 
-  type = 'debit_card', 
-  cardType, 
-  name, 
-  color, 
+  balance: propBalance, 
+  type: propType = 'debit_card', 
+  cardType: propCardType, 
+  name: propName, 
+  color: propColor, 
+  account,
   parallaxTranslateX,
   onPressAdd
 }) => {
+  const balance = account ? account.balance : (propBalance ?? 0);
+  const type = account ? account.type : propType;
+  const cardType = account ? account.cardType : propCardType;
+  const name = account ? account.name : propName;
+  const color = account ? account.color : propColor;
   const [isVisible, setIsVisible] = React.useState(true);
   const { getAccountIcon, getBalanceCardGradient } = useApp();
 

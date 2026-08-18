@@ -3,7 +3,8 @@ import { View, Text, TouchableOpacity, Dimensions } from 'react-native';
 import { BarChart } from 'react-native-gifted-charts';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { styles } from './styles';
+import { getStyles } from './styles';
+import { useApp } from '../../context/AppContext';
 
 interface BarDataItem {
   value: number;
@@ -14,15 +15,21 @@ interface BarDataItem {
 }
 
 export const WeeklyBarChart = () => {
+  const { themeColors, isDarkMode } = useApp();
+  const styles = getStyles(themeColors);
+
   const [activeTab, setActiveTab] = useState<'income' | 'expense'>('income');
   const [weekOffset, setWeekOffset] = useState(0);
 
-  // Colores base de la app
-  const INCOME_COLOR_TOP = '#34C759';     // Verde éxito
-  const INCOME_COLOR_BOTTOM = '#ADFF2F';  // Verde lima brillante
-  const EXPENSE_COLOR_TOP = '#FF5A5F';    // Coral/Rojo peligro
-  const EXPENSE_COLOR_BOTTOM = '#FF8000'; // Naranja/Amarillo brillante
-  const INACTIVE_COLOR = '#2C2D35';        // Gris para días sin transacciones
+  // Dynamic colors depending on active theme
+  const INCOME_COLOR_TOP = '#34C759';     // Bright Green
+  const INCOME_COLOR_BOTTOM = '#85E35D';  // Vibrant Lime
+  const EXPENSE_COLOR_TOP = '#FF5A5F';    // Coral
+  const EXPENSE_COLOR_BOTTOM = '#FFA726'; // Bright Orange
+
+  // Inactive bars (zero value) match theme border/surface
+  const INACTIVE_COLOR = isDarkMode ? '#2C2D35' : '#E5E7EB';
+  const RULE_COLOR = isDarkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)';
 
   // Datos mock para ingresos y gastos
   const mockIncomeData = [
@@ -49,15 +56,10 @@ export const WeeklyBarChart = () => {
   const totalAmount = activeTab === 'income' ? '$4,035.28' : '$2,240.00';
   const labelText = activeTab === 'income' ? 'Total Income' : 'Total Expense';
 
-  // El valor máximo es 2010 para coincidir con la escala del mockup
   const maxValue = 2010;
 
-  // Transformar los datos para gifted-charts
   const chartData: BarDataItem[] = currentData.map((item) => {
     const isZero = item.value === 0;
-
-    // Si el valor es cero, dibujamos una pequeña pastilla gris de altura fija
-    // 60 representa aproximadamente el 3% de la altura máxima (2010)
     const displayValue = isZero ? 60 : item.value;
 
     return {
@@ -74,7 +76,6 @@ export const WeeklyBarChart = () => {
   });
 
   const screenWidth = Dimensions.get('window').width;
-  // Calculamos el ancho disponible para el gráfico
   const chartWidth = screenWidth - 72;
 
   return (
@@ -143,13 +144,13 @@ export const WeeklyBarChart = () => {
           roundedBottom
           hideRules={false}
           rulesType="dashed"
-          rulesColor="rgba(255, 255, 255, 0.08)"
+          rulesColor={RULE_COLOR}
           dashWidth={4}
           dashGap={4}
           yAxisThickness={0}
           xAxisThickness={0}
-          yAxisTextStyle={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: 11 }}
-          xAxisLabelTextStyle={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: 11, textAlign: 'center' }}
+          yAxisTextStyle={{ color: themeColors.textSecondary, fontSize: 11 }}
+          xAxisLabelTextStyle={{ color: themeColors.textSecondary, fontSize: 11, textAlign: 'center' }}
           yAxisLabelTexts={['0', '502', '1005', '1507', '2010']}
           noOfSections={4}
           maxValue={maxValue}
@@ -157,7 +158,6 @@ export const WeeklyBarChart = () => {
           width={chartWidth}
           isAnimated
           animationDuration={600}
-          LinearGradient={LinearGradient}
         />
       </View>
 
@@ -170,7 +170,7 @@ export const WeeklyBarChart = () => {
           activeOpacity={0.7}
         >
           <View style={styles.arrowCircle}>
-            <Ionicons name="chevron-back" size={16} color="rgba(255, 255, 255, 0.6)" />
+            <Ionicons name="chevron-back" size={16} color={themeColors.textSecondary} />
           </View>
           <Text style={styles.navButtonText}>Prev week</Text>
         </TouchableOpacity>
@@ -183,7 +183,7 @@ export const WeeklyBarChart = () => {
         >
           <Text style={styles.navButtonText}>Next week</Text>
           <View style={styles.arrowCircle}>
-            <Ionicons name="chevron-forward" size={16} color="rgba(255, 255, 255, 0.6)" />
+            <Ionicons name="chevron-forward" size={16} color={themeColors.textSecondary} />
           </View>
         </TouchableOpacity>
       </View>

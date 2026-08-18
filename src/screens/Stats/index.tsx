@@ -3,11 +3,11 @@ import { View, Text, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { WeeklyBarChart } from '../../components/WeeklyBarChart';
-import { styles } from './styles';
+import { getStyles } from './styles';
 import { BottonSheet } from '../../components/BottonSheet';
 import { useScreenLoading } from '../../hooks/useScreenLoading';
 import { AppSkeleton, layouts } from '../../components/AppSkeleton';
-
+import { useApp } from '../../context/AppContext';
 
 interface CategoryItem {
   id: string;
@@ -21,6 +21,8 @@ interface CategoryItem {
 
 export const StatsScreen = () => {
   const isLoading = useScreenLoading();
+  const { themeColors, isDarkMode } = useApp();
+  const styles = getStyles(themeColors);
   // Datos mock de categorías para la sección inferior
   const categories: CategoryItem[] = [
     {
@@ -135,7 +137,12 @@ export const StatsScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <AppSkeleton isLoading={isLoading} layout={layouts.statsSkeletonLayout}>
+      <AppSkeleton 
+        isLoading={isLoading} 
+        layout={layouts.statsSkeletonLayout}
+        boneColor={isDarkMode ? '#1E1F25' : '#E5E7EB'}
+        highlightColor={isDarkMode ? '#2E3039' : '#F3F4F6'}
+      >
       {/* Encabezado */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Statistics</Text>

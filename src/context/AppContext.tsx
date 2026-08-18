@@ -1,8 +1,15 @@
-import React, { createContext, useContext, useMemo } from 'react';
+import React, { createContext, useContext, useState, useMemo } from 'react';
 import { useFinanceStore } from '../store/useFinanceStore';
 import { Account, PaymentIconType } from '../types';
+import { ThemeColors, darkThemeColors, lightThemeColors } from '../constants/theme';
 
 export interface AppContextType {
+  // Theme & Appearance
+  isDarkMode: boolean;
+  themeColors: ThemeColors;
+  toggleTheme: () => void;
+  setDarkMode: (isDark: boolean) => void;
+
   // Theme & Colors config
   cardColors: string[];
   cashColors: string[];
@@ -68,7 +75,20 @@ export const getBalanceCardGradient = (color?: string): [string, string, ...stri
 };
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [isDarkMode, setIsDarkMode] = useState(true);
   const accounts = useFinanceStore((state) => state.accounts);
+
+  const toggleTheme = () => {
+    setIsDarkMode((prev) => !prev);
+  };
+
+  const setDarkMode = (isDark: boolean) => {
+    setIsDarkMode(isDark);
+  };
+
+  const themeColors = useMemo(() => {
+    return isDarkMode ? darkThemeColors : lightThemeColors;
+  }, [isDarkMode]);
 
   // Filter only credit/debit card accounts
   const cardAccounts = useMemo(() => {
@@ -109,6 +129,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const value = useMemo(() => ({
+    isDarkMode,
+    themeColors,
+    toggleTheme,
+    setDarkMode,
     cardColors: CARD_COLORS,
     cashColors: CASH_COLORS,
     getCardGradientColors,
@@ -119,7 +143,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     totalCardBalance,
     cashBalance,
     totalBalance,
-  }), [cardAccounts, cashAccount, totalCardBalance, cashBalance, totalBalance]);
+  }), [isDarkMode, themeColors, cardAccounts, cashAccount, totalCardBalance, cashBalance, totalBalance]);
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };
