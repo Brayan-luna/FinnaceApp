@@ -67,8 +67,8 @@ export const SettingsScreen = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        <AppSkeleton 
-          isLoading={isLoading} 
+        <AppSkeleton
+          isLoading={isLoading}
           layout={layouts.settingsSkeletonLayout}
           boneColor={isDarkMode ? '#1E1F25' : '#E5E7EB'}
           highlightColor={isDarkMode ? '#2E3039' : '#F3F4F6'}
@@ -84,9 +84,7 @@ export const SettingsScreen = () => {
             <TouchableOpacity style={styles.profileCard} activeOpacity={0.8}>
               <View style={styles.avatarContainer}>
                 <Image
-                  source={{
-                    uri: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=256&auto=format&fit=crop',
-                  }}
+                  source={require('../../../assets/brayanAnime.jpg')}
                   style={styles.avatar}
                 />
                 <View style={styles.editBadge}>

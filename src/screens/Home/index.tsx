@@ -7,13 +7,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { getStyles } from './styles';
 import { CardsCarousel } from '../../components/CardsCarousel';
-import { useFinanceStore } from '../../store/useFinanceStore';
 import { useApp } from '../../context/AppContext';
+import { formatCurrency, getCategoryMeta } from '../../context/AppContext';
 
 export const HomeScreen = () => {
   const navigation = useNavigation<any>();
-  const { transactions } = useFinanceStore();
-  const { cashAccount, totalBalance, themeColors, isDarkMode } = useApp();
+  const { transactions, accounts, cashAccount, totalBalance, totalIncome, totalExpenses, themeColors, isDarkMode } = useApp();
   const styles = getStyles(themeColors);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -37,29 +36,13 @@ export const HomeScreen = () => {
     navigation.navigate('AddTransaction', { transactionType: type });
   };
 
-  // Dynamic calculations
-  const totalIncome = transactions
-    .filter(t => t.type === 'income')
-    .reduce((sum, t) => sum + t.amount, 0);
-
-  const totalExpenses = transactions
-    .filter(t => t.type === 'expense')
-    .reduce((sum, t) => sum + Math.abs(t.amount), 0);
-
-
-  const formatCurrency = (val: number) => {
-    return val.toLocaleString('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    });
+  // Helper to find account name by ID
+  const getAccountName = (accountId: string): string => {
+    const acc = accounts.find(a => a.id === accountId);
+    if (!acc) return 'Account';
+    if (acc.type === 'cash') return 'Cash';
+    return acc.name || 'Card';
   };
-
-  // Helper to match mockup values when using default initial mock transactions
-  const displayIncome = transactions.length === 3 ? '$1,200,000' : formatCurrency(totalIncome);
-  const displayExpenses = transactions.length === 3 ? '$620,000' : formatCurrency(totalExpenses);
-  const displayBalance = transactions.length === 3 ? '$830,000' : formatCurrency(totalBalance);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -116,7 +99,7 @@ export const HomeScreen = () => {
             </View>
             <View style={styles.cashRightSection}>
               <Text style={styles.cashAmount}>
-                ${cashAccount.balance.toLocaleString('en-US', { minimumFractionDigits: 0 }).replace(/,/g, '.')}
+                {formatCurrency(cashAccount.balance)}
               </Text>
               <Ionicons name="chevron-forward" size={16} color={themeColors.textSecondary} />
             </View>
@@ -154,14 +137,10 @@ export const HomeScreen = () => {
               <Ionicons name="arrow-down" size={14} color="white" />
             </View>
             <Text style={styles.summaryCardLabel}>Income</Text>
-            <Text style={styles.summaryCardValue}>{displayIncome}</Text>
-            {transactions.length > 0 ? (
-              <Text style={styles.summaryCardChange}>
-                <Text style={{ color: '#34C759', fontWeight: 'bold' }}>+12.5%</Text> vs last month
-              </Text>
-            ) : (
-              <Text style={styles.summaryCardChange}>-- vs last month</Text>
-            )}
+            <Text style={styles.summaryCardValue}>{formatCurrency(totalIncome)}</Text>
+            <Text style={styles.summaryCardChange}>
+              {totalIncome > 0 ? 'this period' : '-- vs last month'}
+            </Text>
           </View>
 
           {/* Expenses Card */}
@@ -170,14 +149,10 @@ export const HomeScreen = () => {
               <Ionicons name="arrow-up" size={14} color="white" />
             </View>
             <Text style={styles.summaryCardLabel}>Expenses</Text>
-            <Text style={styles.summaryCardValue}>{displayExpenses}</Text>
-            {transactions.length > 0 ? (
-              <Text style={styles.summaryCardChange}>
-                <Text style={{ color: '#FF5A5F', fontWeight: 'bold' }}>+8.2%</Text> vs last month
-              </Text>
-            ) : (
-              <Text style={styles.summaryCardChange}>-- vs last month</Text>
-            )}
+            <Text style={styles.summaryCardValue}>{formatCurrency(totalExpenses)}</Text>
+            <Text style={styles.summaryCardChange}>
+              {totalExpenses > 0 ? 'this period' : '-- vs last month'}
+            </Text>
           </View>
 
           {/* Balance Card */}
@@ -186,9 +161,9 @@ export const HomeScreen = () => {
               <Ionicons name="wallet" size={14} color="white" />
             </View>
             <Text style={styles.summaryCardLabel}>Balance</Text>
-            <Text style={styles.summaryCardValue}>{displayBalance}</Text>
+            <Text style={styles.summaryCardValue}>{formatCurrency(totalBalance)}</Text>
             <Text style={styles.summaryCardChange}>
-              {transactions.length > 0 ? 'vs last month' : '-- vs last month'}
+              {transactions.length > 0 ? 'total' : '-- vs last month'}
             </Text>
           </View>
         </View>
@@ -213,49 +188,29 @@ export const HomeScreen = () => {
               </Text>
             </View>
           ) : (
-            transactions.slice(0, 3).map((item) => {
+            transactions.slice(0, 5).map((item) => {
               const isIncome = item.type === 'income';
-              const isHamburguesa = item.description === 'Hamburguesa';
-              const isSalario = item.description === 'Salario';
-              const isSupermercado = item.description === 'Supermercado';
-              
-              let iconName = 'cart';
-              let iconBg = '#FFCC00';
-              let displayTitle = item.description || 'Transaction';
-              let displaySubtitle = `${item.date} • ${item.type === 'income' ? 'Cash' : 'Card'}`;
-              let amountText = `${isIncome ? '+' : '-'}$${Math.abs(item.amount).toLocaleString('en-US', { minimumFractionDigits: 0 })}`;
-              let amountColor = isIncome ? themeColors.success : themeColors.text;
-
-              if (isHamburguesa) {
-                iconName = 'restaurant';
-                iconBg = '#FF5A5F';
-                displaySubtitle = 'May 12, 2024 • Card';
-                amountText = '-$32,000';
-                amountColor = themeColors.text;
-              } else if (isSalario) {
-                iconName = 'arrow-down';
-                iconBg = '#34C759';
-                displaySubtitle = 'May 10, 2024 • Cash';
-                amountText = '+$1,200,000';
-                amountColor = themeColors.success;
-              } else if (isSupermercado) {
-                iconName = 'cart';
-                iconBg = '#FFCC00';
-                displaySubtitle = 'May 9, 2024 • Cash';
-                amountText = '-$85,000';
-                amountColor = themeColors.text;
-              }
+              const cat = getCategoryMeta(item.category);
+              const displayTitle = item.description || cat.name;
+              const accountName = getAccountName(item.accountId);
+              const displaySubtitle = `${item.date} • ${accountName}`;
+              const amountText = `${isIncome ? '+' : '-'}${formatCurrency(Math.abs(item.amount))}`;
+              const amountColor = isIncome ? themeColors.success : themeColors.text;
 
               return (
                 <TouchableOpacity 
                   key={item.id} 
                   style={styles.transactionRow} 
                   activeOpacity={0.7}
-                  onPress={() => navigation.navigate('AddTransaction', { accountId: item.accountId, transactionType: item.type })}
+                  onPress={() => navigation.navigate('AddTransaction', { 
+                    accountId: item.accountId, 
+                    transactionType: item.type,
+                    editTransaction: item,
+                  })}
                 >
                   <View style={styles.transactionLeft}>
-                    <View style={[styles.transactionIconBg, { backgroundColor: iconBg }]}>
-                      <Ionicons name={iconName as any} size={16} color="white" />
+                    <View style={[styles.transactionIconBg, { backgroundColor: cat.color }]}>
+                      <Ionicons name={cat.icon as any} size={16} color="white" />
                     </View>
                     <View>
                       <Text style={styles.transactionTitle}>{displayTitle}</Text>

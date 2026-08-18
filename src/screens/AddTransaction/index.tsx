@@ -15,7 +15,6 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getStyles } from './styles';
-import { useFinanceStore } from '../../store/useFinanceStore';
 import { Account, PaymentIconType, PaymentIconTypeKey, Transaction } from '../../types';
 import { PaymentIcon } from 'react-native-payment-icons';
 import { BottonSheet } from '../../components/BottonSheet';
@@ -52,8 +51,8 @@ const MONTH_FULL_NAMES = [
 export const AddTransactionScreen = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
-  const { accounts, addTransaction } = useFinanceStore();
-  const { themeColors, isDarkMode } = useApp();
+  const { themeColors, isDarkMode, accounts, addTransaction, editTransaction: editTransactionFn } = useApp();
+
   const styles = getStyles(themeColors);
 
   const accountSheetRef = useRef<any>(null);
@@ -62,11 +61,13 @@ export const AddTransactionScreen = () => {
 
   const initialAccountId = route.params?.accountId;
   const initialTransactionType = route.params?.transactionType || 'expense';
+  const transactionToEdit = route.params?.editTransaction as Transaction | undefined;
+
 
   const isLoading = useScreenLoading();
 
   // Form State
-  const [amount, setAmount] = useState<string>(initialTransactionType === 'income' ? '1,000' : '32,000');
+  const [amount, setAmount] = useState<string>('');
   const [currency, setCurrency] = useState<'USD' | 'COP'>('COP');
 
   const defaultCategory = initialTransactionType === 'income'
@@ -74,9 +75,9 @@ export const AddTransactionScreen = () => {
     : CATEGORIES[1]; // Food & Drinks default
 
   const [selectedCategory, setSelectedCategory] = useState<Category>(defaultCategory);
-  const [description, setDescription] = useState<string>(initialTransactionType === 'income' ? 'Deposit' : 'Hamburguesa');
+  const [description, setDescription] = useState<string>('');
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date(2024, 4, 12)); // May 12, 2024 as default to match mock
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [notes, setNotes] = useState<string>('');
 
   // Sheet Visibility States
@@ -89,6 +90,23 @@ export const AddTransactionScreen = () => {
   const [tempDate, setTempDate] = useState<Date>(new Date());
   const [viewDate, setViewDate] = useState<Date>(new Date());
   const [startYearPage, setStartYearPage] = useState<number>(2021); // Starting year for Year grid page
+
+  // Pre-fill form when editing an existing transaction
+  useEffect(() => {
+    if (transactionToEdit) {
+      // Amount
+      setAmount(transactionToEdit.amount.toLocaleString('en-US', { maximumFractionDigits: 0 }));
+      // Description
+      if (transactionToEdit.description) {
+        setDescription(transactionToEdit.description);
+      }
+      // Category
+      const matchedCategory = CATEGORIES.find(c => c.id === transactionToEdit.category);
+      if (matchedCategory) {
+        setSelectedCategory(matchedCategory);
+      }
+    }
+  }, [transactionToEdit]);
 
   // Initialize with correct account when loaded
   useEffect(() => {
@@ -118,7 +136,7 @@ export const AddTransactionScreen = () => {
     }
   }, [isDateSheetOpen, selectedDate]);
 
-  const handleSaveExpense = () => {
+  const handleSaveExpense = async () => {
     // Remove formatting from amount
     const parsedAmount = parseFloat(amount.replace(/[^0-9.]/g, ''));
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
@@ -131,8 +149,10 @@ export const AddTransactionScreen = () => {
       return;
     }
 
-    const newTransaction: Transaction = {
-      id: Date.now().toString(),
+    // Build transaction object – keep existing id if editing
+    const txnId = transactionToEdit ? transactionToEdit.id : Date.now().toString();
+    const transactionObj: Transaction = {
+      id: txnId,
       accountId: selectedAccount.id,
       type: initialTransactionType,
       amount: parsedAmount,
@@ -141,7 +161,13 @@ export const AddTransactionScreen = () => {
       description: description.trim() || undefined,
     };
 
-    addTransaction(newTransaction);
+    if (transactionToEdit) {
+      // Updating existing transaction
+      await editTransactionFn(transactionObj);
+    } else {
+      // Adding new transaction
+      await addTransaction(transactionObj);
+    }
 
     const successMsg = initialTransactionType === 'income'
       ? 'Deposit saved successfully!'

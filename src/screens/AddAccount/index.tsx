@@ -14,7 +14,6 @@ import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getStyles } from './styles';
-import { useFinanceStore } from '../../store/useFinanceStore';
 import { Account, AccountType, PaymentIconType, PaymentIconTypeKey } from '../../types';
 import { PaymentIcon } from 'react-native-payment-icons';
 import { BottonSheet } from '../../components/BottonSheet';
@@ -42,10 +41,9 @@ const ALL_CARD_BRANDS = [
 
 export const AddAccountScreen = () => {
   const navigation = useNavigation<any>();
-  const addAccount = useFinanceStore((state) => state.addAccount);
   const bottomSheetRef = useRef<any>(null);
 
-  const { cardColors, getCardGradientColors, getAccountIcon, themeColors, isDarkMode } = useApp();
+  const { cardColors, getCardGradientColors, getAccountIcon, themeColors, isDarkMode, addAccount } = useApp();
   const styles = getStyles(themeColors);
 
   const isLoading = useScreenLoading();

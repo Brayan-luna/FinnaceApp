@@ -14,7 +14,6 @@ import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getStyles } from './styles';
-import { useFinanceStore } from '../../store/useFinanceStore';
 import { Account } from '../../types';
 import { useApp } from '../../context/AppContext';
 import { useScreenLoading } from '../../hooks/useScreenLoading';
@@ -22,9 +21,7 @@ import { AppSkeleton, layouts } from '../../components/AppSkeleton';
 
 export const AddCashScreen = () => {
   const navigation = useNavigation<any>();
-  const addAccount = useFinanceStore((state) => state.addAccount);
-
-  const { cashColors, getCardGradientColors, themeColors, isDarkMode } = useApp();
+  const { cashColors, getCardGradientColors, themeColors, isDarkMode, addAccount } = useApp();
   const styles = getStyles(themeColors);
 
   const isLoading = useScreenLoading();

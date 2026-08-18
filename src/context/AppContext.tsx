@@ -1,7 +1,50 @@
-import React, { createContext, useContext, useState, useMemo } from 'react';
-import { useFinanceStore } from '../store/useFinanceStore';
-import { Account, PaymentIconType } from '../types';
+import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import { Account, Transaction, PaymentIconType } from '../types';
 import { ThemeColors, darkThemeColors, lightThemeColors } from '../constants/theme';
+import {
+  initDatabase,
+  fetchAccountsFromDB,
+  insertAccountToDB,
+  updateAccountBalanceInDB,
+  fetchTransactionsFromDB,
+  insertTransactionToDB,
+  updateTransactionInDB,
+} from '../db/database';
+
+
+// Shared category metadata for the whole app
+export interface CategoryMeta {
+  id: string;
+  name: string;
+  icon: string;
+  color: string;
+}
+
+export const CATEGORIES_MAP: Record<string, CategoryMeta> = {
+  shopping: { id: 'shopping', name: 'Shopping', icon: 'cart', color: '#9C27B0' },
+  food: { id: 'food', name: 'Food & Drinks', icon: 'fast-food', color: '#E91E63' },
+  transport: { id: 'transport', name: 'Transport', icon: 'car', color: '#2196F3' },
+  housing: { id: 'housing', name: 'Housing', icon: 'home', color: '#FFC107' },
+  health: { id: 'health', name: 'Health', icon: 'heart', color: '#34C759' },
+  entertainment: { id: 'entertainment', name: 'Entertainment', icon: 'game-controller', color: '#03A9F4' },
+  education: { id: 'education', name: 'Education', icon: 'school', color: '#FF4081' },
+  bills: { id: 'bills', name: 'Bills & Utilities', icon: 'receipt', color: '#FF9800' },
+  income: { id: 'income', name: 'Income', icon: 'arrow-down', color: '#34C759' },
+  other: { id: 'other', name: 'Other', icon: 'ellipsis-horizontal', color: '#9E9E9E' },
+};
+
+export const getCategoryMeta = (categoryId: string): CategoryMeta => {
+  return CATEGORIES_MAP[categoryId] || CATEGORIES_MAP['other'];
+};
+
+export const formatCurrency = (amount: number, currency: string = 'USD'): string => {
+  return amount.toLocaleString('en-US', {
+    style: 'currency',
+    currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  });
+};
 
 export interface AppContextType {
   // Theme & Appearance
@@ -9,6 +52,14 @@ export interface AppContextType {
   themeColors: ThemeColors;
   toggleTheme: () => void;
   setDarkMode: (isDark: boolean) => void;
+
+  // Database State & Actions
+  isDBLoaded: boolean;
+  accounts: Account[];
+  transactions: Transaction[];
+  addAccount: (account: Account) => Promise<void>;
+  addTransaction: (transaction: Transaction) => Promise<void>;
+  editTransaction: (transaction: Transaction) => Promise<void>;
 
   // Theme & Colors config
   cardColors: string[];
@@ -25,11 +76,12 @@ export interface AppContextType {
   totalCardBalance: number;
   cashBalance: number;
   totalBalance: number;
+  totalIncome: number;
+  totalExpenses: number;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-// Unified global configurations
 export const CARD_COLORS = [
   '#7F56D9', // Purple
   '#FF5A5F', // Coral/Red
@@ -76,7 +128,33 @@ export const getBalanceCardGradient = (color?: string): [string, string, ...stri
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isDarkMode, setIsDarkMode] = useState(true);
-  const accounts = useFinanceStore((state) => state.accounts);
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [isDBLoaded, setIsDBLoaded] = useState(false);
+
+  // Initialize SQLite database and fetch stored data
+  useEffect(() => {
+    let isMounted = true;
+    const loadDB = async () => {
+      try {
+        await initDatabase();
+        const storedAccounts = await fetchAccountsFromDB();
+        const storedTransactions = await fetchTransactionsFromDB();
+        if (isMounted) {
+          setAccounts(storedAccounts);
+          setTransactions(storedTransactions);
+          setIsDBLoaded(true);
+        }
+      } catch (error) {
+        console.error('Failed to initialize SQLite Database in AppContext:', error);
+      }
+    };
+
+    loadDB();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const toggleTheme = () => {
     setIsDarkMode((prev) => !prev);
@@ -86,21 +164,101 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setIsDarkMode(isDark);
   };
 
+  const addAccount = async (account: Account) => {
+    try {
+      await insertAccountToDB(account);
+      setAccounts((prev) => [...prev, account]);
+    } catch (error) {
+      console.error('Failed to insert account into SQLite:', error);
+    }
+  };
+
+  const addTransaction = async (transaction: Transaction) => {
+    try {
+      await insertTransactionToDB(transaction);
+
+      // Update account balance
+      let updatedAccount: Account | null = null;
+      setAccounts((prevAccounts) =>
+        prevAccounts.map((acc) => {
+          if (acc.id === transaction.accountId) {
+            const change = transaction.type === 'income' ? transaction.amount : -transaction.amount;
+            const newBalance = acc.balance + change;
+            updatedAccount = { ...acc, balance: newBalance };
+            return updatedAccount;
+          }
+          return acc;
+        })
+      );
+
+      if (updatedAccount) {
+        await updateAccountBalanceInDB((updatedAccount as Account).id, (updatedAccount as Account).balance);
+      }
+
+      setTransactions((prev) => [transaction, ...prev]);
+    } catch (error) {
+      console.error('Failed to insert transaction into SQLite:', error);
+    }
+
+      // Duplicate block removed
+  };
+
+  const editTransaction = async (transaction: Transaction) => {
+    try {
+      // Update transaction in DB
+      await updateTransactionInDB(transaction);
+
+      // Find original transaction to compute balance delta
+      const original = transactions.find((t) => t.id === transaction.id);
+      if (!original) {
+        console.warn('Original transaction not found for edit');
+        return;
+      }
+
+      // Compute balance change based on difference in amount and type
+      const oldSigned = original.type === 'income' ? original.amount : -original.amount;
+      const newSigned = transaction.type === 'income' ? transaction.amount : -transaction.amount;
+      const delta = newSigned - oldSigned;
+
+      let updatedAccount: Account | null = null;
+      setAccounts((prevAccounts) =>
+        prevAccounts.map((acc) => {
+          if (acc.id === transaction.accountId) {
+            const newBalance = acc.balance + delta;
+            updatedAccount = { ...acc, balance: newBalance };
+            return updatedAccount;
+          }
+          return acc;
+        })
+      );
+
+      if (updatedAccount) {
+        await updateAccountBalanceInDB((updatedAccount as Account).id, (updatedAccount as Account).balance);
+      }
+
+      // Update transaction list in state
+      setTransactions((prev) =>
+        prev.map((t) => (t.id === transaction.id ? transaction : t))
+      );
+    } catch (error) {
+      console.error('Failed to edit transaction in SQLite:', error);
+    }
+  };
+
   const themeColors = useMemo(() => {
     return isDarkMode ? darkThemeColors : lightThemeColors;
   }, [isDarkMode]);
 
-  // Filter only credit/debit card accounts
+  // Selectors
   const cardAccounts = useMemo(() => {
     return accounts.filter((acc) => acc.type === 'credit_card' || acc.type === 'debit_card');
   }, [accounts]);
 
-  // Find cash account
   const cashAccount = useMemo(() => {
     return accounts.find((acc) => acc.type === 'cash');
   }, [accounts]);
 
-  // Calculate balances
+  // Global calculations
   const totalCardBalance = useMemo(() => {
     return cardAccounts.reduce((sum, acc) => sum + acc.balance, 0);
   }, [cardAccounts]);
@@ -128,11 +286,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return <PaymentIcon type={iconType} width={size * 1.7} />;
   };
 
+  const totalIncome = useMemo(() => {
+    return transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+  }, [transactions]);
+
+  const totalExpenses = useMemo(() => {
+    return transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + Math.abs(t.amount), 0);
+  }, [transactions]);
+
   const value = useMemo(() => ({
     isDarkMode,
     themeColors,
     toggleTheme,
     setDarkMode,
+    isDBLoaded,
+    accounts,
+    transactions,
+    addAccount,
+    addTransaction,
+    editTransaction,
     cardColors: CARD_COLORS,
     cashColors: CASH_COLORS,
     getCardGradientColors,
@@ -143,7 +315,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     totalCardBalance,
     cashBalance,
     totalBalance,
-  }), [isDarkMode, themeColors, cardAccounts, cashAccount, totalCardBalance, cashBalance, totalBalance]);
+    totalIncome,
+    totalExpenses,
+  }), [
+    isDarkMode,
+    themeColors,
+    isDBLoaded,
+    accounts,
+    transactions,
+    cardAccounts,
+    cashAccount,
+    totalCardBalance,
+    cashBalance,
+    totalBalance,
+    totalIncome,
+    totalExpenses,
+  ]);
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };

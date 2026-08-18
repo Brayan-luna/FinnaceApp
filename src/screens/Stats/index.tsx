@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,11 +8,13 @@ import { BottonSheet } from '../../components/BottonSheet';
 import { useScreenLoading } from '../../hooks/useScreenLoading';
 import { AppSkeleton, layouts } from '../../components/AppSkeleton';
 import { useApp } from '../../context/AppContext';
+import { getCategoryMeta, formatCurrency } from '../../context/AppContext';
 
 interface CategoryItem {
   id: string;
   name: string;
   amount: string;
+  rawAmount: number;
   percentage: number;
   icon: keyof typeof Ionicons.glyphMap | string;
   iconColor: string;
@@ -21,119 +23,57 @@ interface CategoryItem {
 
 export const StatsScreen = () => {
   const isLoading = useScreenLoading();
-  const { themeColors, isDarkMode } = useApp();
+  const { themeColors, isDarkMode, transactions } = useApp();
   const styles = getStyles(themeColors);
-  // Datos mock de categorías para la sección inferior
-  const categories: CategoryItem[] = [
-    {
-      id: '1',
-      name: 'Shopping',
-      amount: '$950.00',
-      percentage: 42,
-      icon: 'cart',
-      iconColor: 'rgba(98, 0, 238, 0.15)',
-      barColor: '#6200EE',
-    },
-    {
-      id: '2',
-      name: 'Food & Drinks',
-      amount: '$680.50',
-      percentage: 30,
-      icon: 'fast-food',
-      iconColor: 'rgba(255, 204, 0, 0.15)',
-      barColor: '#FFCC00',
-    },
-    {
-      id: '3',
-      name: 'Entertainment',
-      amount: '$350.00',
-      percentage: 16,
-      icon: 'game-controller',
-      iconColor: 'rgba(0, 122, 255, 0.15)',
-      barColor: '#007AFF',
-    },
-    {
-      id: '4',
-      name: 'Transport',
-      amount: '$259.50',
-      percentage: 12,
-      icon: 'car',
-      iconColor: 'rgba(52, 199, 89, 0.15)',
-      barColor: '#34C759',
-    },
-    {
-      id: '1',
-      name: 'Shopping',
-      amount: '$950.00',
-      percentage: 42,
-      icon: 'cart',
-      iconColor: 'rgba(98, 0, 238, 0.15)',
-      barColor: '#6200EE',
-    },
-    {
-      id: '2',
-      name: 'Food & Drinks',
-      amount: '$680.50',
-      percentage: 30,
-      icon: 'fast-food',
-      iconColor: 'rgba(255, 204, 0, 0.15)',
-      barColor: '#FFCC00',
-    },
-    {
-      id: '3',
-      name: 'Entertainment',
-      amount: '$350.00',
-      percentage: 16,
-      icon: 'game-controller',
-      iconColor: 'rgba(0, 122, 255, 0.15)',
-      barColor: '#007AFF',
-    },
-    {
-      id: '4',
-      name: 'Transport',
-      amount: '$259.50',
-      percentage: 12,
-      icon: 'car',
-      iconColor: 'rgba(52, 199, 89, 0.15)',
-      barColor: '#34C759',
-    },
-    {
-      id: '1',
-      name: 'Shopping',
-      amount: '$950.00',
-      percentage: 42,
-      icon: 'cart',
-      iconColor: 'rgba(98, 0, 238, 0.15)',
-      barColor: '#6200EE',
-    },
-    {
-      id: '2',
-      name: 'Food & Drinks',
-      amount: '$680.50',
-      percentage: 30,
-      icon: 'fast-food',
-      iconColor: 'rgba(255, 204, 0, 0.15)',
-      barColor: '#FFCC00',
-    },
-    {
-      id: '3',
-      name: 'Entertainment',
-      amount: '$350.00',
-      percentage: 16,
-      icon: 'game-controller',
-      iconColor: 'rgba(0, 122, 255, 0.15)',
-      barColor: '#007AFF',
-    },
-    {
-      id: '4',
-      name: 'Transport',
-      amount: '$259.50',
-      percentage: 12,
-      icon: 'car',
-      iconColor: 'rgba(52, 199, 89, 0.15)',
-      barColor: '#34C759',
-    },
-  ];
+
+  // Aggregate real transaction data by category
+  const categories: CategoryItem[] = useMemo(() => {
+    const expenseTransactions = transactions.filter(t => t.type === 'expense');
+    const totalExpenses = expenseTransactions.reduce((sum, t) => sum + Math.abs(t.amount), 0);
+
+    if (totalExpenses === 0) {
+      // Show placeholder categories when no transactions exist
+      const placeholders = ['shopping', 'food', 'entertainment', 'transport'];
+      return placeholders.map(catId => {
+        const cat = getCategoryMeta(catId);
+        return {
+          id: cat.id,
+          name: cat.name,
+          amount: '$0',
+          rawAmount: 0,
+          percentage: 0,
+          icon: cat.icon,
+          iconColor: `${cat.color}25`,
+          barColor: cat.color,
+        };
+      });
+    }
+
+    // Group transactions by category
+    const grouped: Record<string, number> = {};
+    expenseTransactions.forEach(t => {
+      const catId = t.category || 'other';
+      grouped[catId] = (grouped[catId] || 0) + Math.abs(t.amount);
+    });
+
+    // Convert to sorted array
+    return Object.entries(grouped)
+      .sort(([, a], [, b]) => b - a)
+      .map(([catId, amount]) => {
+        const cat = getCategoryMeta(catId);
+        const percentage = Math.round((amount / totalExpenses) * 100);
+        return {
+          id: cat.id,
+          name: cat.name,
+          amount: formatCurrency(amount),
+          rawAmount: amount,
+          percentage,
+          icon: cat.icon,
+          iconColor: `${cat.color}25`,
+          barColor: cat.color,
+        };
+      });
+  }, [transactions]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -184,6 +124,14 @@ export const StatsScreen = () => {
         contentContainerStyle={[styles.categoryList, styles.scrollContent]}
         showsVerticalScrollIndicator={false}
         style={{ flex: 1, marginTop: 16 }}
+        ListEmptyComponent={
+          <View style={{ alignItems: 'center', paddingVertical: 40 }}>
+            <Ionicons name="bar-chart-outline" size={48} color={themeColors.textSecondary} />
+            <Text style={{ color: themeColors.textSecondary, marginTop: 12, fontSize: 14, textAlign: 'center' }}>
+              Add some expenses to{"\n"}see your statistics here
+            </Text>
+          </View>
+        }
       />
       </AppSkeleton>
     </SafeAreaView>

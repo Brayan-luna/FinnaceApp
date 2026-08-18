@@ -1,11 +1,12 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Animated, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { styles } from './styles';
+import { getStyles } from './styles';
 import { Ionicons } from '@expo/vector-icons';
 import { PaymentIcon } from 'react-native-payment-icons'
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useApp } from '../../context/AppContext';
+import { formatCurrency } from '../../context/AppContext';
 import { Account, PaymentIconType } from '../../types';
 
 export interface BalanceCardProps {
@@ -35,12 +36,10 @@ export const BalanceCard: React.FC<BalanceCardProps> = ({
   const name = account ? account.name : propName;
   const color = account ? account.color : propColor;
   const [isVisible, setIsVisible] = React.useState(true);
-  const { getAccountIcon, getBalanceCardGradient } = useApp();
+  const { getAccountIcon, getBalanceCardGradient, themeColors } = useApp();
+  const styles = getStyles(themeColors);
 
-  const formattedBalance = balance.toLocaleString('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  });
+  const formattedBalance = formatCurrency(balance);
 
   const gradientColors = getBalanceCardGradient(color);
 
