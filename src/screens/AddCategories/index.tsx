@@ -16,6 +16,8 @@ import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { styles } from './styles';
+import { useScreenLoading } from '../../hooks/useScreenLoading';
+import { AppSkeleton, layouts } from '../../components/AppSkeleton';
 
 interface Category {
   id: string;
@@ -75,7 +77,8 @@ const AVAILABLE_ICONS = [
 ];
 
 export const AddCategoriesScreen = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
+  const isLoading = useScreenLoading();
   const [searchQuery, setSearchQuery] = useState('');
   const [categories, setCategories] = useState<Category[]>(INITIAL_CATEGORIES);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -121,6 +124,7 @@ export const AddCategoriesScreen = () => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
+        <AppSkeleton isLoading={isLoading} layout={layouts.addCategoriesSkeletonLayout}>
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
@@ -221,6 +225,7 @@ export const AddCategoriesScreen = () => {
             </TouchableOpacity>
           )}
         />
+        </AppSkeleton>
       </View>
 
       {/* Modal for adding a new category */}

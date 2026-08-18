@@ -17,12 +17,16 @@ import { styles } from './styles';
 import { useFinanceStore } from '../../store/useFinanceStore';
 import { Account } from '../../types';
 import { useApp } from '../../context/AppContext';
+import { useScreenLoading } from '../../hooks/useScreenLoading';
+import { AppSkeleton, layouts } from '../../components/AppSkeleton';
 
 export const AddCashScreen = () => {
   const navigation = useNavigation<any>();
   const addAccount = useFinanceStore((state) => state.addAccount);
 
   const { cashColors, getCardGradientColors } = useApp();
+
+  const isLoading = useScreenLoading();
 
   // Form State
   const [name, setName] = useState<string>('');
@@ -62,6 +66,7 @@ export const AddCashScreen = () => {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
+          <AppSkeleton isLoading={isLoading} layout={layouts.addCashSkeletonLayout}>
           {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity
@@ -193,6 +198,7 @@ export const AddCashScreen = () => {
             </TouchableOpacity>
 
           </View>
+          </AppSkeleton>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

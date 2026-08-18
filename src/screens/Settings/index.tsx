@@ -1,14 +1,17 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { theme } from '../../constants/theme';
+import { View, Text } from 'react-native';
 import { styles } from './styles';
+import { useScreenLoading } from '../../hooks/useScreenLoading';
+import { AppSkeleton, layouts } from '../../components/AppSkeleton';
 
 export const SettingsScreen = () => {
+  const isLoading = useScreenLoading();
+
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Settings Screen</Text>
+      <AppSkeleton isLoading={isLoading} layout={layouts.settingsSkeletonLayout}>
+        <Text style={styles.text}>Settings Screen</Text>
+      </AppSkeleton>
     </View>
   );
 };
-
-

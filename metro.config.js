@@ -1,10 +1,19 @@
+const path = require('path');
 const { getDefaultConfig } = require('expo/metro-config');
 
 const config = getDefaultConfig(__dirname);
 
-config.resolver.extraNodeModules = {
-  ...config.resolver.extraNodeModules,
-  'react-native-linear-gradient': require.resolve('expo-linear-gradient'),
+config.resolver.resolveRequest = (context, moduleName, platform) => {
+  if (moduleName === 'react-native-linear-gradient') {
+    return context.resolveRequest(
+      context,
+      path.resolve(__dirname, 'src/shims/linear-gradient.js'),
+      platform
+    );
+  }
+  return context.resolveRequest(context, moduleName, platform);
 };
 
 module.exports = config;
+
+

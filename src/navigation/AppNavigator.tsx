@@ -10,7 +10,7 @@ import { theme } from '../constants/theme';
 // Import Screens
 import { HomeScreen } from '../screens/Home';
 import { StatsScreen } from '../screens/Stats';
-import { TransferScreen } from '../screens/Transfer';
+import { AddTransactionScreen } from '../screens/AddTransaction';
 import { ChatScreen } from '../screens/Chat';
 import { SettingsScreen } from '../screens/Settings';
 import { AddCategoriesScreen } from '../screens/AddCategories';
@@ -65,39 +65,8 @@ const TabNavigator = () => {
           ),
         }}
       />
-      <Tab.Screen
-        name="Transfer"
-        component={TransferScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <View style={[
-              styles.transferButton,
-              {
-                backgroundColor: focused ? '#2C2D35' : '#1E1F25',
-              }
-            ]}>
-              <Ionicons
-                name="swap-horizontal"
-                size={24}
-                color={focused ? '#FFFFFF' : 'rgba(255, 255, 255, 0.4)'}
-              />
-            </View>
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Chat"
-        component={ChatScreen}
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <Ionicons
-              name={focused ? "chatbubble-ellipses" : "chatbubble-ellipses-outline"}
-              size={22}
-              color={focused ? "#FFFFFF" : "rgba(255, 255, 255, 0.4)"}
-            />
-          ),
-        }}
-      />
+
+
       <Tab.Screen
         name="Settings"
         component={SettingsScreen}
@@ -121,6 +90,7 @@ export const AppNavigator = () => {
       <GestureHandlerRootView style={{ flex: 1 }}>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="MainTabs" component={TabNavigator} />
+          <Stack.Screen name="AddTransaction" component={AddTransactionScreen} />
           <Stack.Screen name="AddCategories" component={AddCategoriesScreen} />
           <Stack.Screen name="AddAccount" component={AddAccountScreen} />
           <Stack.Screen name="AddCash" component={AddCashScreen} />

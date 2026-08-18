@@ -81,7 +81,7 @@ export const CardsCarousel = () => {
                 name={item.name}
                 color={item.color}
                 parallaxTranslateX={parallaxTranslateX}
-                onPressAdd={() => navigation.navigate('Transfer', { accountId: item.id, transactionType: 'income' })}
+                onPressAdd={() => navigation.navigate('AddTransaction', { accountId: item.id, transactionType: 'income' })}
               />
             </Animated.View>
           );

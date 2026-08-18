@@ -20,6 +20,8 @@ import { PaymentIcon } from 'react-native-payment-icons';
 import { BottonSheet } from '../../components/BottonSheet';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { useApp } from '../../context/AppContext';
+import { useScreenLoading } from '../../hooks/useScreenLoading';
+import { AppSkeleton, layouts } from '../../components/AppSkeleton';
 
 const ALL_CARD_BRANDS = [
   { id: PaymentIconTypeKey.visa, name: 'Visa' },
@@ -44,6 +46,8 @@ export const AddAccountScreen = () => {
   const bottomSheetRef = useRef<any>(null);
 
   const { cardColors, getCardGradientColors, getAccountIcon } = useApp();
+
+  const isLoading = useScreenLoading();
 
   // Form State
   const [accountType, setAccountType] = useState<'card' | 'cash'>('card');
@@ -91,6 +95,7 @@ export const AddAccountScreen = () => {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
+          <AppSkeleton isLoading={isLoading} layout={layouts.addAccountSkeletonLayout}>
           {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity
@@ -236,6 +241,7 @@ export const AddAccountScreen = () => {
             </TouchableOpacity>
 
           </View>
+          </AppSkeleton>
         </ScrollView>
       </KeyboardAvoidingView>
 

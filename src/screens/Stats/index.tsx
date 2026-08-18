@@ -5,6 +5,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { WeeklyBarChart } from '../../components/WeeklyBarChart';
 import { styles } from './styles';
 import { BottonSheet } from '../../components/BottonSheet';
+import { useScreenLoading } from '../../hooks/useScreenLoading';
+import { AppSkeleton, layouts } from '../../components/AppSkeleton';
 
 
 interface CategoryItem {
@@ -12,12 +14,13 @@ interface CategoryItem {
   name: string;
   amount: string;
   percentage: number;
-  icon: keyof typeof Ionicons.mappings | string;
+  icon: keyof typeof Ionicons.glyphMap | string;
   iconColor: string;
   barColor: string;
 }
 
 export const StatsScreen = () => {
+  const isLoading = useScreenLoading();
   // Datos mock de categorías para la sección inferior
   const categories: CategoryItem[] = [
     {
@@ -132,6 +135,7 @@ export const StatsScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <AppSkeleton isLoading={isLoading} layout={layouts.statsSkeletonLayout}>
       {/* Encabezado */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Statistics</Text>
@@ -174,7 +178,7 @@ export const StatsScreen = () => {
         showsVerticalScrollIndicator={false}
         style={{ flex: 1, marginTop: 16 }}
       />
-
+      </AppSkeleton>
     </SafeAreaView>
   );
 };

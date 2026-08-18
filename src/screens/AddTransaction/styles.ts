@@ -256,7 +256,7 @@ export const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#FFFFFF',
-
+    paddingBottom: 20
   },
   sheetItemRow: {
     flexDirection: 'row',
@@ -583,5 +583,19 @@ export const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 20,
-  }
+  },
+  noAccountsContainer: {
+    paddingVertical: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  noAccountsText: {
+    color: 'rgba(255, 255, 255, 0.4)',
+    fontSize: 14,
+    textAlign: 'center',
+    lineHeight: 20,
+    marginTop: 8,
+    paddingHorizontal: 16,
+  },
 });
+

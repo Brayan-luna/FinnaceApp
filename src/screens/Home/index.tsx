@@ -1,5 +1,7 @@
-import React from 'react';
-import { View, Text, ScrollView, StatusBar, TouchableOpacity, Image } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, ScrollView, StatusBar, TouchableOpacity, Image, Animated, Pressable } from 'react-native';
+import { useScreenLoading } from '../../hooks/useScreenLoading';
+import { AppSkeleton, layouts } from '../../components/AppSkeleton';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -12,6 +14,27 @@ export const HomeScreen = () => {
   const navigation = useNavigation<any>();
   const { transactions } = useFinanceStore();
   const { cashAccount, totalBalance } = useApp();
+
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const animation = useRef(new Animated.Value(0)).current;
+
+  const isLoading = useScreenLoading();
+
+  const toggleMenu = () => {
+    const toValue = isMenuOpen ? 0 : 1;
+    Animated.spring(animation, {
+      toValue,
+      friction: 6,
+      tension: 40,
+      useNativeDriver: true,
+    }).start();
+    setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleNavigate = (type: 'income' | 'expense') => {
+    toggleMenu();
+    navigation.navigate('AddTransaction', { transactionType: type });
+  };
 
   // Dynamic calculations
   const totalIncome = transactions
@@ -45,7 +68,8 @@ export const HomeScreen = () => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        <View style={styles.header}>
+        <AppSkeleton isLoading={isLoading} layout={layouts.homeSkeletonLayout}>
+          <View style={styles.header}>
           <View>
             <Text style={styles.greeting}>Good Afternoon,</Text>
             <Text style={styles.userName}>Brayan Luna</Text>
@@ -73,7 +97,7 @@ export const HomeScreen = () => {
           <TouchableOpacity 
             style={styles.cashContainer} 
             activeOpacity={0.8}
-            onPress={() => navigation.navigate('Transfer', { accountId: cashAccount.id, transactionType: 'expense' })}
+            onPress={() => navigation.navigate('AddTransaction', { accountId: cashAccount.id, transactionType: 'expense' })}
           >
             <View style={styles.cashLeftSection}>
               <View style={styles.cashIconBg}>
@@ -221,7 +245,7 @@ export const HomeScreen = () => {
                   key={item.id} 
                   style={styles.transactionRow} 
                   activeOpacity={0.7}
-                  onPress={() => navigation.navigate('Transfer', { accountId: item.accountId, transactionType: item.type })}
+                  onPress={() => navigation.navigate('AddTransaction', { accountId: item.accountId, transactionType: item.type })}
                 >
                   <View style={styles.transactionLeft}>
                     <View style={[styles.transactionIconBg, { backgroundColor: iconBg }]}>
@@ -241,7 +265,79 @@ export const HomeScreen = () => {
             })
           )}
         </View>
+        </AppSkeleton>
       </ScrollView>
+
+      {/* Floating Action Button & Tooltip Menu */}
+      {isMenuOpen && (
+        <Pressable style={styles.backdrop} onPress={toggleMenu} />
+      )}
+
+      <View style={styles.fabContainer}>
+        {/* Tooltip */}
+        <Animated.View
+          style={[
+            styles.tooltipContainer,
+            {
+              opacity: animation,
+              transform: [
+                { scale: animation.interpolate({ inputRange: [0, 1], outputRange: [0.8, 1] }) },
+                { translateY: animation.interpolate({ inputRange: [0, 1], outputRange: [20, 0] }) }
+              ],
+              pointerEvents: isMenuOpen ? 'auto' : 'none',
+            }
+          ]}
+        >
+          <TouchableOpacity
+            style={styles.tooltipItem}
+            activeOpacity={0.7}
+            onPress={() => handleNavigate('income')}
+          >
+            <View style={[styles.tooltipIconCircle, { backgroundColor: '#34C759' }]}>
+              <Ionicons name="arrow-down" size={16} color="white" />
+            </View>
+            <Text style={styles.tooltipText}>Add income</Text>
+          </TouchableOpacity>
+
+          <View style={styles.tooltipDivider} />
+
+          <TouchableOpacity
+            style={styles.tooltipItem}
+            activeOpacity={0.7}
+            onPress={() => handleNavigate('expense')}
+          >
+            <View style={[styles.tooltipIconCircle, { backgroundColor: '#FF5A5F' }]}>
+              <Ionicons name="arrow-up" size={16} color="white" />
+            </View>
+            <Text style={styles.tooltipText}>Add expense</Text>
+          </TouchableOpacity>
+
+          {/* Arrow pointing down */}
+          <View style={styles.tooltipArrow} />
+        </Animated.View>
+
+        {/* FAB */}
+        <TouchableOpacity
+          style={styles.fabButton}
+          activeOpacity={0.8}
+          onPress={toggleMenu}
+        >
+          <Animated.View
+            style={{
+              transform: [
+                {
+                  rotate: animation.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: ['0deg', '135deg'],
+                  }),
+                },
+              ],
+            }}
+          >
+            <Ionicons name="add" size={28} color="white" />
+          </Animated.View>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };

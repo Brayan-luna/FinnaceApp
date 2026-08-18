@@ -20,6 +20,8 @@ import { Account, PaymentIconType, PaymentIconTypeKey, Transaction } from '../..
 import { PaymentIcon } from 'react-native-payment-icons';
 import { BottonSheet } from '../../components/BottonSheet';
 import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import { useScreenLoading } from '../../hooks/useScreenLoading';
+import { AppSkeleton, layouts } from '../../components/AppSkeleton';
 
 interface Category {
   id: string;
@@ -46,7 +48,7 @@ const MONTH_FULL_NAMES = [
   'July', 'August', 'September', 'October', 'November', 'December'
 ];
 
-export const TransferScreen = () => {
+export const AddTransactionScreen = () => {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const { accounts, addTransaction } = useFinanceStore();
@@ -58,14 +60,16 @@ export const TransferScreen = () => {
   const initialAccountId = route.params?.accountId;
   const initialTransactionType = route.params?.transactionType || 'expense';
 
+  const isLoading = useScreenLoading();
+
   // Form State
   const [amount, setAmount] = useState<string>(initialTransactionType === 'income' ? '1,000' : '32,000');
   const [currency, setCurrency] = useState<'USD' | 'COP'>('COP');
-  
+
   const defaultCategory = initialTransactionType === 'income'
     ? CATEGORIES[8] // Income / Deposit category
     : CATEGORIES[1]; // Food & Drinks default
-  
+
   const [selectedCategory, setSelectedCategory] = useState<Category>(defaultCategory);
   const [description, setDescription] = useState<string>(initialTransactionType === 'income' ? 'Deposit' : 'Hamburguesa');
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
@@ -135,9 +139,9 @@ export const TransferScreen = () => {
     };
 
     addTransaction(newTransaction);
-    
-    const successMsg = initialTransactionType === 'income' 
-      ? 'Deposit saved successfully!' 
+
+    const successMsg = initialTransactionType === 'income'
+      ? 'Deposit saved successfully!'
       : 'Expense saved successfully!';
 
     Alert.alert('Success', successMsg, [
@@ -260,192 +264,194 @@ export const TransferScreen = () => {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {/* Header */}
-          <View style={styles.header}>
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={() => navigation.navigate('Home')}
-              activeOpacity={0.7}
-            >
-              <Ionicons name="arrow-back" size={20} color="#FFFFFF" />
-            </TouchableOpacity>
-
-            <View style={styles.headerTitleContainer}>
-              <Text style={styles.headerSubtitle}>
-                {initialTransactionType === 'income' ? 'Add income' : 'Add expense'}
-              </Text>
-              <Text style={styles.headerTitle}>
-                {initialTransactionType === 'income' ? 'New deposit' : 'New expense'}
-              </Text>
-            </View>
-
-            <Image
-              source={require('../../../assets/brayanAnime.jpg')}
-              style={styles.avatar}
-            />
-          </View>
-
-          {/* Form */}
-          <View style={styles.form}>
-            {/* Amount Group */}
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Amount</Text>
-              <View style={styles.amountInputContainer}>
-                <View style={styles.amountIconCircle}>
-                  <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: 'bold' }}>$</Text>
-                </View>
-                <TextInput
-                  style={styles.amountInput}
-                  placeholder="0"
-                  placeholderTextColor="rgba(255, 255, 255, 0.4)"
-                  value={amount}
-                  onChangeText={setAmount}
-                  keyboardType="numeric"
-                />
-                <TouchableOpacity
-                  style={styles.currencyPicker}
-                  onPress={() => setCurrency(currency === 'COP' ? 'USD' : 'COP')}
-                  activeOpacity={0.7}
-                >
-                  <Text style={styles.currencyText}>{currency}</Text>
-                  <Ionicons name="chevron-down" size={12} color="#FFFFFF" />
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* Category Selector */}
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Category</Text>
+          <AppSkeleton isLoading={isLoading} layout={layouts.addTransactionSkeletonLayout}>
+            {/* Header */}
+            <View style={styles.header}>
               <TouchableOpacity
-                style={styles.selectorCard}
-                onPress={() => setIsCategorySheetOpen(true)}
-                activeOpacity={0.8}
+                style={styles.backButton}
+                onPress={() => navigation.goBack()}
+                activeOpacity={0.7}
               >
-                <View style={styles.selectorLeft}>
-                  <View style={[styles.categoryBadge, { backgroundColor: selectedCategory.color }]}>
-                    <Ionicons name={selectedCategory.icon as any} size={16} color="#FFFFFF" />
-                  </View>
-                  <Text style={styles.selectorTitle}>{selectedCategory.name}</Text>
-                </View>
-                <Ionicons name="chevron-down" size={16} color="rgba(255, 255, 255, 0.4)" />
+                <Ionicons name="arrow-back" size={20} color="#FFFFFF" />
               </TouchableOpacity>
-            </View>
 
-            {/* Description Input */}
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Description (optional)</Text>
-              <View style={styles.descInputContainer}>
-                <TextInput
-                  style={styles.descInput}
-                  placeholder="e.g. Food, Taxi"
-                  placeholderTextColor="rgba(255, 255, 255, 0.4)"
-                  value={description}
-                  onChangeText={(val) => {
-                    if (val.length <= 100) setDescription(val);
-                  }}
-                />
-                <Text style={styles.charCounter}>{description.length}/100</Text>
+              <View style={styles.headerTitleContainer}>
+                <Text style={styles.headerSubtitle}>
+                  {initialTransactionType === 'income' ? 'Add income' : 'Add expense'}
+                </Text>
+                <Text style={styles.headerTitle}>
+                  {initialTransactionType === 'income' ? 'New deposit' : 'New expense'}
+                </Text>
               </View>
+
+              <Image
+                source={require('../../../assets/brayanAnime.jpg')}
+                style={styles.avatar}
+              />
             </View>
 
-            {/* From (Account) Selector */}
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>From</Text>
-              {selectedAccount ? (
-                <TouchableOpacity
-                  style={styles.accountRow}
-                  onPress={() => setIsAccountSheetOpen(true)}
-                  activeOpacity={0.8}
-                >
-                  <View style={styles.accountLeft}>
-                    {selectedAccount.type === 'cash' ? (
-                      <View style={styles.accountLogoCash}>
-                        <Ionicons name="wallet-outline" size={18} color="#34C759" />
-                      </View>
-                    ) : (
-                      <View style={styles.accountLogoContainer}>
-                        <PaymentIcon type={(selectedAccount.cardType || 'generic') as any} width={30} />
-                      </View>
-                    )}
-                    <View style={styles.accountInfo}>
-                      <Text style={styles.accountName}>{selectedAccount.name}</Text>
-                      <Text style={styles.accountMeta}>
-                        Balance: {formatBalance(selectedAccount.balance)}
-                      </Text>
-                    </View>
+            {/* Form */}
+            <View style={styles.form}>
+              {/* Amount Group */}
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Amount</Text>
+                <View style={styles.amountInputContainer}>
+                  <View style={styles.amountIconCircle}>
+                    <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: 'bold' }}>$</Text>
                   </View>
-                  <Ionicons name="chevron-forward" size={16} color="rgba(255, 255, 255, 0.4)" />
-                </TouchableOpacity>
-              ) : (
+                  <TextInput
+                    style={styles.amountInput}
+                    placeholder="0"
+                    placeholderTextColor="rgba(255, 255, 255, 0.4)"
+                    value={amount}
+                    onChangeText={setAmount}
+                    keyboardType="numeric"
+                  />
+                  <TouchableOpacity
+                    style={styles.currencyPicker}
+                    onPress={() => setCurrency(currency === 'COP' ? 'USD' : 'COP')}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={styles.currencyText}>{currency}</Text>
+                    <Ionicons name="chevron-down" size={12} color="#FFFFFF" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* Category Selector */}
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Category</Text>
                 <TouchableOpacity
                   style={styles.selectorCard}
-                  onPress={() => setIsAccountSheetOpen(true)}
+                  onPress={() => setIsCategorySheetOpen(true)}
                   activeOpacity={0.8}
                 >
                   <View style={styles.selectorLeft}>
-                    <Ionicons name="card-outline" size={18} color="rgba(255, 255, 255, 0.4)" />
-                    <Text style={[styles.selectorTitle, { color: 'rgba(255, 255, 255, 0.4)' }]}>
-                      Select account or cash
+                    <View style={[styles.categoryBadge, { backgroundColor: selectedCategory.color }]}>
+                      <Ionicons name={selectedCategory.icon as any} size={16} color="#FFFFFF" />
+                    </View>
+                    <Text style={styles.selectorTitle}>{selectedCategory.name}</Text>
+                  </View>
+                  <Ionicons name="chevron-down" size={16} color="rgba(255, 255, 255, 0.4)" />
+                </TouchableOpacity>
+              </View>
+
+              {/* Description Input */}
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Description (optional)</Text>
+                <View style={styles.descInputContainer}>
+                  <TextInput
+                    style={styles.descInput}
+                    placeholder="e.g. Food, Taxi"
+                    placeholderTextColor="rgba(255, 255, 255, 0.4)"
+                    value={description}
+                    onChangeText={(val) => {
+                      if (val.length <= 100) setDescription(val);
+                    }}
+                  />
+                  <Text style={styles.charCounter}>{description.length}/100</Text>
+                </View>
+              </View>
+
+              {/* From (Account) Selector */}
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>From</Text>
+                {selectedAccount ? (
+                  <TouchableOpacity
+                    style={styles.accountRow}
+                    onPress={() => setIsAccountSheetOpen(true)}
+                    activeOpacity={0.8}
+                  >
+                    <View style={styles.accountLeft}>
+                      {selectedAccount.type === 'cash' ? (
+                        <View style={styles.accountLogoCash}>
+                          <Ionicons name="wallet-outline" size={18} color="#34C759" />
+                        </View>
+                      ) : (
+                        <View style={styles.accountLogoContainer}>
+                          <PaymentIcon type={(selectedAccount.cardType || 'generic') as any} width={30} />
+                        </View>
+                      )}
+                      <View style={styles.accountInfo}>
+                        <Text style={styles.accountName}>{selectedAccount.name}</Text>
+                        <Text style={styles.accountMeta}>
+                          Balance: {formatBalance(selectedAccount.balance)}
+                        </Text>
+                      </View>
+                    </View>
+                    <Ionicons name="chevron-forward" size={16} color="rgba(255, 255, 255, 0.4)" />
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    style={styles.selectorCard}
+                    onPress={() => setIsAccountSheetOpen(true)}
+                    activeOpacity={0.8}
+                  >
+                    <View style={styles.selectorLeft}>
+                      <Ionicons name="card-outline" size={18} color="rgba(255, 255, 255, 0.4)" />
+                      <Text style={[styles.selectorTitle, { color: 'rgba(255, 255, 255, 0.4)' }]}>
+                        Select account or cash
+                      </Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={16} color="rgba(255, 255, 255, 0.4)" />
+                  </TouchableOpacity>
+                )}
+              </View>
+
+              {/* Date Selector */}
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Date</Text>
+                <TouchableOpacity
+                  style={styles.selectorCard}
+                  onPress={() => setIsDateSheetOpen(true)}
+                  activeOpacity={0.8}
+                >
+                  <View style={styles.selectorLeft}>
+                    <Ionicons name="calendar-outline" size={18} color="rgba(255, 255, 255, 0.4)" />
+                    <Text style={styles.selectorTitle}>
+                      {formatDateString(selectedDate)}
                     </Text>
                   </View>
                   <Ionicons name="chevron-forward" size={16} color="rgba(255, 255, 255, 0.4)" />
                 </TouchableOpacity>
-              )}
-            </View>
+              </View>
 
-            {/* Date Selector */}
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Date</Text>
+              {/* Notes Section */}
+              <View style={styles.formGroup}>
+                <Text style={styles.label}>Notes (optional)</Text>
+                <View style={styles.notesContainer}>
+                  <TextInput
+                    style={styles.notesInput}
+                    placeholder="Add a note..."
+                    placeholderTextColor="rgba(255, 255, 255, 0.4)"
+                    value={notes}
+                    onChangeText={setNotes}
+                    multiline
+                    numberOfLines={2}
+                  />
+                </View>
+              </View>
+
+              {/* Submit Button */}
               <TouchableOpacity
-                style={styles.selectorCard}
-                onPress={() => setIsDateSheetOpen(true)}
+                style={styles.submitButton}
+                onPress={handleSaveExpense}
                 activeOpacity={0.8}
               >
-                <View style={styles.selectorLeft}>
-                  <Ionicons name="calendar-outline" size={18} color="rgba(255, 255, 255, 0.4)" />
-                  <Text style={styles.selectorTitle}>
-                    {formatDateString(selectedDate)}
+                <LinearGradient
+                  colors={['#8A2387', '#E94057', '#F27121']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.submitButtonGradient}
+                >
+                  <Text style={styles.submitButtonText}>
+                    {initialTransactionType === 'income' ? 'Save deposit' : 'Save expense'}
                   </Text>
-                </View>
-                <Ionicons name="chevron-forward" size={16} color="rgba(255, 255, 255, 0.4)" />
+                </LinearGradient>
               </TouchableOpacity>
+
             </View>
-
-            {/* Notes Section */}
-            <View style={styles.formGroup}>
-              <Text style={styles.label}>Notes (optional)</Text>
-              <View style={styles.notesContainer}>
-                <TextInput
-                  style={styles.notesInput}
-                  placeholder="Add a note..."
-                  placeholderTextColor="rgba(255, 255, 255, 0.4)"
-                  value={notes}
-                  onChangeText={setNotes}
-                  multiline
-                  numberOfLines={2}
-                />
-              </View>
-            </View>
-
-            {/* Submit Button */}
-            <TouchableOpacity
-              style={styles.submitButton}
-              onPress={handleSaveExpense}
-              activeOpacity={0.8}
-            >
-              <LinearGradient
-                colors={['#8A2387', '#E94057', '#F27121']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.submitButtonGradient}
-              >
-                <Text style={styles.submitButtonText}>
-                  {initialTransactionType === 'income' ? 'Save deposit' : 'Save expense'}
-                </Text>
-              </LinearGradient>
-            </TouchableOpacity>
-
-          </View>
+          </AppSkeleton>
         </ScrollView>
       </KeyboardAvoidingView>
 
@@ -460,47 +466,56 @@ export const TransferScreen = () => {
           <BottomSheetScrollView contentContainerStyle={{ paddingBottom: Platform.OS === 'ios' ? 112 : 96 }}>
             <View style={styles.sheetContent}>
               <Text style={styles.sheetTitle}>Select account or cash</Text>
-              {accounts.map((acc) => {
-                const isSelected = selectedAccount?.id === acc.id;
-                return (
-                  <TouchableOpacity
-                    key={acc.id}
-                    style={[
-                      styles.accountSheetRow,
-                      isSelected && styles.accountSheetRowSelected
-                    ]}
-                    onPress={() => {
-                      setSelectedAccount(acc);
-                      setIsAccountSheetOpen(false);
-                    }}
-                    activeOpacity={0.7}
-                  >
-                    <View style={styles.accountSheetLeft}>
-                      {acc.type === 'cash' ? (
-                        <View style={styles.accountLogoCash}>
-                          <Ionicons name="wallet-outline" size={18} color="#34C759" />
+              {accounts.length === 0 ? (
+                <View style={styles.noAccountsContainer}>
+                  <Ionicons name="wallet-outline" size={36} color="rgba(255, 255, 255, 0.3)" />
+                  <Text style={styles.noAccountsText}>
+                    No hay cuentas o efectivo registrados para realizar esta transacción. Por favor, agregue una cuenta primero.
+                  </Text>
+                </View>
+              ) : (
+                accounts.map((acc) => {
+                  const isSelected = selectedAccount?.id === acc.id;
+                  return (
+                    <TouchableOpacity
+                      key={acc.id}
+                      style={[
+                        styles.accountSheetRow,
+                        isSelected && styles.accountSheetRowSelected
+                      ]}
+                      onPress={() => {
+                        setSelectedAccount(acc);
+                        setIsAccountSheetOpen(false);
+                      }}
+                      activeOpacity={0.7}
+                    >
+                      <View style={styles.accountSheetLeft}>
+                        {acc.type === 'cash' ? (
+                          <View style={styles.accountLogoCash}>
+                            <Ionicons name="wallet-outline" size={18} color="#34C759" />
+                          </View>
+                        ) : (
+                          <View style={styles.accountLogoContainer}>
+                            <PaymentIcon type={(acc.cardType || 'generic') as any} width={30} />
+                          </View>
+                        )}
+                        <View style={styles.accountSheetInfo}>
+                          <Text style={styles.accountSheetName}>{acc.name}</Text>
+                          <Text style={styles.accountSheetMeta}>
+                            {acc.type === 'cash' ? 'Cash' : 'Credit / Debit Card'}
+                          </Text>
                         </View>
-                      ) : (
-                        <View style={styles.accountLogoContainer}>
-                          <PaymentIcon type={(acc.cardType || 'generic') as any} width={30} />
+                      </View>
+                      <View style={{ alignItems: 'flex-end', gap: 6 }}>
+                        <Text style={styles.accountSheetBalance}>{formatBalance(acc.balance)}</Text>
+                        <View style={[styles.radioOuter, isSelected && styles.radioOuterSelected]}>
+                          {isSelected && <View style={styles.radioInner} />}
                         </View>
-                      )}
-                      <View style={styles.accountSheetInfo}>
-                        <Text style={styles.accountSheetName}>{acc.name}</Text>
-                        <Text style={styles.accountSheetMeta}>
-                          {acc.type === 'cash' ? 'Cash' : 'Credit / Debit Card'}
-                        </Text>
                       </View>
-                    </View>
-                    <View style={{ alignItems: 'flex-end', gap: 6 }}>
-                      <Text style={styles.accountSheetBalance}>{formatBalance(acc.balance)}</Text>
-                      <View style={[styles.radioOuter, isSelected && styles.radioOuterSelected]}>
-                        {isSelected && <View style={styles.radioInner} />}
-                      </View>
-                    </View>
-                  </TouchableOpacity>
-                );
-              })}
+                    </TouchableOpacity>
+                  );
+                })
+              )}
             </View>
           </BottomSheetScrollView>
         </BottonSheet>
@@ -536,6 +551,7 @@ export const TransferScreen = () => {
                     </Text>
                   </TouchableOpacity>
                 ))}
+
               </View>
             </View>
           </BottomSheetScrollView>
@@ -760,9 +776,6 @@ export const TransferScreen = () => {
 
             {/* Sticky Footer - Always Pinned at Bottom of BottomSheet */}
             <View style={{ paddingHorizontal: 16 }}>
-              {/* Selected Date Indicator Banner */}
-
-
               {/* Action Buttons */}
               <View style={styles.actionButtonsRow}>
                 <TouchableOpacity
